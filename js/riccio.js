@@ -382,6 +382,15 @@
     } );
   }
 
+  /**
+   * Attach an event listener to the given media queries. When a query is
+   * triggered it check if per_row has changed, if so re-init Riccio.
+   *
+   * @param  {Object} riccio
+   *         The riccio object on which attach the event listeners.
+   * @param  {Array} mediaqueries
+   *         An array of MediaQueryList. Listeners will be attached to this elements.
+   */
   function handleMediaQueries( riccio, mediaqueries ) {
     var qrs_index = mediaqueries.length;
 
