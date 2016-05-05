@@ -1,0 +1,18 @@
+.riccio {
+
+  &::before {
+    display: none;
+  }
+
+  &__item {
+    cursor: pointer;
+  }
+
+  &__pop {
+    display: none;
+
+    &--active {
+      display: block;
+    }
+  }
+}
