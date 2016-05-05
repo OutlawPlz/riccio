@@ -1,0 +1,17 @@
+@media screen and (max-width: 560px) {
+  .album-view::before {
+    content: '2';
+  }
+}
+
+@media screen and (min-width: 561px) and (max-width: 850px) {
+  .album-view::before {
+    content: '4';
+  }
+}
+
+@media screen and (min-width: 851px) {
+  .album-view::before {
+    content: '6';
+  }
+}
