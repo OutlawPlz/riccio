@@ -58,6 +58,4 @@ gulp.task( 'minify-js', function() {
     .pipe( gulp.dest( './dist' ) );
 } );
 
-gulp.task( 'dist', function() {
-  return gulp.src( '' );
-} );
+gulp.task( 'dist', ['styles', 'minify-css', 'minify-js'],function() {} );

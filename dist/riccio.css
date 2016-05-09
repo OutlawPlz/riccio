@@ -1,3 +1,39 @@
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .riccio::before {
   display: none;
 }
@@ -18,4 +54,6 @@
 
 .riccio__pop--active {
   display: block;
+  -webkit-animation: fadeIn .5s ease forwards;
+          animation: fadeIn .5s ease forwards;
 }
