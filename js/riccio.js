@@ -158,7 +158,7 @@
    * @param  {Node} elem
    *         The pop to open.
    */
-  Riccio.prototype.open = function( elem ) {
+  Riccio.prototype.open = function( elem ) { // @todo To remove. Only toggle.
     elem.classList.add( 'riccio__pop--active' );
   };
 
@@ -168,7 +168,7 @@
    * @param  {Node} elem
    *         The pop to close.
    */
-  Riccio.prototype.close = function( elem ) {
+  Riccio.prototype.close = function( elem ) { // @todo To remove. Only toggle.
     elem.classList.remove( 'riccio__pop--active' );
   };
 
@@ -180,7 +180,8 @@
    */
   Riccio.prototype.toggle = function( elem ) {
     var active = this.element.querySelectorAll( '.riccio__pop--active' ),
-        act_index = active.length;
+        act_index = active.length,
+        row = elem.parentElement;
 
     if ( elem.classList.contains( 'riccio__pop--active' ) ) {
       while ( act_index-- ) {
@@ -193,6 +194,8 @@
       }
       this.open( elem );
     }
+
+    toggleRow( row );
   };
 
 
@@ -296,6 +299,24 @@
     }
 
     return frag;
+  }
+
+  /**
+   * Check if a row should be active or not. If active adds a CSS class,
+   * otherwise removes it.
+   *
+   * @param  {Node} elem
+   *         The row to check if should be active or not.
+   */
+  function toggleRow( elem ) {
+    var active = row.querySelector( '.riccio__pop--active' );
+
+    if ( active ) {
+      row.classList.add( 'riccio__row--active' );
+    }
+    else {
+      row.classList.remove( 'riccio__row--active' );
+    }
   }
 
   /**

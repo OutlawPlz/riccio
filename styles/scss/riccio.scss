@@ -1,7 +1,13 @@
+@import 'mixins';
+
 .riccio {
 
   &::before {
     display: none;
+  }
+
+  &__row {
+    @include clearfix;
   }
 
   &__item {
