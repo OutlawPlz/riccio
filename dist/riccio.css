@@ -2,7 +2,7 @@
   display: none;
 }
 
-.riccio__row::after {
+.riccio__row-item::after, .riccio__row-pop::after {
   content: "";
   display: table;
   clear: both;

@@ -1,4 +1,5 @@
-@import 'mixins';
+@import "mixins";
+@import "animations";
 
 .riccio {
 
@@ -6,8 +7,14 @@
     display: none;
   }
 
-  &__row {
+  &__row-item,
+  &__row-pop {
     @include clearfix;
+  }
+
+  &__row-pop {
+
+    &--active {}
   }
 
   &__item {
@@ -19,6 +26,7 @@
 
     &--active {
       display: block;
+      animation: fadeIn .5s ease forwards;
     }
   }
 }

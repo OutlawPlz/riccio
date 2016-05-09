@@ -125,8 +125,8 @@
    *         The given element with items and pops appended.
    */
   Riccio.prototype.addAll = function( frag ) {
-    var item_rows = frag.querySelectorAll( '.riccio__row:nth-child(odd)' ),
-        pop_rows = frag.querySelectorAll( '.riccio__row:nth-child(even)' ),
+    var item_rows = frag.querySelectorAll( '.riccio__row-item' ),
+        pop_rows = frag.querySelectorAll( '.riccio__row-pop' ),
         item_store = this.element.querySelectorAll( this.options.item_selector ),
         pop_store = this.element.querySelectorAll( this.options.pop_selector ),
         itm_index = item_store.length,
@@ -261,14 +261,18 @@
    *         The given element with the given number of rows.
    */
   function addRows( frag, num ) {
-    num *= 2;
-
-    var row;
+    var item,
+        pop;
 
     while ( num-- ) {
-      row = document.createElement( 'div' );
-      row.classList.add( 'riccio__row' );
-      frag.appendChild( row );
+      item = document.createElement( 'div' );
+      pop = document.createElement( 'div' );
+
+      item.classList.add( 'riccio__row-item' );
+      pop.classList.add( 'riccio__row-pop' );
+
+      frag.appendChild( item );
+      frag.appendChild( pop );
     }
 
     return frag;
@@ -309,13 +313,13 @@
    *         The row to check if should be active or not.
    */
   function toggleRow( elem ) {
-    var active = row.querySelector( '.riccio__pop--active' );
+    var active = elem.querySelector( '.riccio__pop--active' );
 
     if ( active ) {
-      row.classList.add( 'riccio__row--active' );
+      elem.classList.add( 'riccio__row-pop--active' );
     }
     else {
-      row.classList.remove( 'riccio__row--active' );
+      elem.classList.remove( 'riccio__row-pop--active' );
     }
   }
 
