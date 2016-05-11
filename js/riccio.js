@@ -153,49 +153,19 @@
   };
 
   /**
-   * Open the given pop.
+   * Open or close the element corresponding to the given index.
    *
-   * @param  {Node} elem
-   *         The pop to open.
+   * @param {String} index
+   *        The index of the pop_store corresponding to the element to open.
    */
-  Riccio.prototype.open = function( elem ) { // @todo To remove. Only toggle.
-    elem.classList.add( 'riccio__pop--active' );
-  };
+  Riccio.prototype.toggle = function( index ) {
+    var prev_pop = this.element.querySelector( '.riccio__pop--active' ),
+        prev_item = this.element.querySelector( '.riccio__item--active' ),
+        prev_row = this.element.querySelector( '.riccio__row-pop--active' );
 
-  /**
-   * Close the given pop.
-   *
-   * @param  {Node} elem
-   *         The pop to close.
-   */
-  Riccio.prototype.close = function( elem ) { // @todo To remove. Only toggle.
-    elem.classList.remove( 'riccio__pop--active' );
-  };
-
-  /**
-   * Open or close the given pop, closing all the others.
-   *
-   * @param  {Node} elem
-   *         The pop to open or close.
-   */
-  Riccio.prototype.toggle = function( elem ) {
-    var active = this.element.querySelectorAll( '.riccio__pop--active' ),
-        act_index = active.length,
-        row = elem.parentElement;
-
-    if ( elem.classList.contains( 'riccio__pop--active' ) ) {
-      while ( act_index-- ) {
-        this.close( active[ act_index ] );
-      }
-    }
-    else {
-      while ( act_index-- ) {
-        this.close( active[ act_index ] );
-      }
-      this.open( elem );
-    }
-
-    toggleRow( row );
+    toggleItem( this.item_store[ index ], prev_item );
+    togglePop( this.pop_store[ index ], prev_pop );
+    toggleRow( this.pop_store[ index ].parentElement, prev_row );
   };
 
 
@@ -306,20 +276,60 @@
   }
 
   /**
+   * Takes an item element and adds or removes active class, if there is
+   * a previous element removes the active class from it.
+   *
+   * @param  {Node} item
+   *         The item element to which add or remove class.
+   * @param  {prev} prev
+   *         The previous pop or item element to which remove active class.
+   */
+  function toggleItem( item, prev ) {
+    if ( item.classList.contains( 'riccio__item--active' ) ) {
+      item.classList.remove( 'riccio__item--active' );
+    }
+    else {
+      if ( prev ) {
+        prev.classList.remove( 'riccio__item--active' );
+      }
+      item.classList.add( 'riccio__item--active' );
+    }
+  }
+
+  /**
+   * Takes a pop element and adds or removes active class, if there is
+   * a previous element removes the active class from it.
+   *
+   * @param  {Node} pop
+   *         The pop element to which add or remove class.
+   * @param  {prev} prev
+   *         The previous pop element to which remove active class.
+   */
+  function togglePop( pop, prev ) {
+    if ( pop.classList.contains( 'riccio__pop--active' ) ) {
+      pop.classList.remove( 'riccio__pop--active' );
+    }
+    else {
+      if ( prev ) {
+        prev.classList.remove( 'riccio__pop--active' );
+      }
+      pop.classList.add( 'riccio__pop--active' );
+    }
+  }
+
+  /**
    * Check if a row should be active or not. If active adds a CSS class,
    * otherwise removes it.
    *
    * @param  {Node} elem
    *         The row to check if should be active or not.
+   * @param  {Node} prev
+   *         The previous element to which remove active class.
    */
-  function toggleRow( elem ) {
-    var active = elem.querySelector( '.riccio__pop--active' );
-
-    if ( active ) {
-      elem.classList.add( 'riccio__row-pop--active' );
-    }
-    else {
-      elem.classList.remove( 'riccio__row-pop--active' );
+  function toggleRow( row, prev ) {
+    if ( row != prev_row ) {
+      prev_row.classList.remove( 'riccio__row-pop--active' );
+      row.classList.add( 'riccio__row-pop--active' );
     }
   }
 
@@ -335,15 +345,13 @@
    *         The data-riccio value found. If not found return false.
    */
   function getIndex( start, end ) {
-    var index = false,
-        parent = start;
+    var index = false;
 
-    while ( parent != end ) {
-      if ( parent.hasAttribute( 'data-riccio' ) ) {
-        index = parent.getAttribute( 'data-riccio' );
-        break;
+    while ( start != end ) {
+      if ( start.hasAttribute( 'data-riccio' ) ) {
+        return start.getAttribute( 'data-riccio' );
       }
-      parent = parent.parentElement;
+      start = start.parentElement;
     }
 
     return index;
@@ -402,7 +410,7 @@
       var index = getIndex( event.target, event.currentTarget );
 
       if ( index ) {
-        riccio.toggle( riccio.pop_store[ index ] );
+        riccio.toggle( index );
       }
     } );
   }
@@ -420,10 +428,10 @@
     var qrs_index = mediaqueries.length;
 
     while( qrs_index-- ) {
-      mediaqueries[ qrs_index ].addListener( idontlike );
+      mediaqueries[ qrs_index ].addListener( callToInit );
     }
 
-    function idontlike( mediaquery ) {
+    function callToInit( mediaquery ) {
       var per_row = getPerRow( riccio.element );
 
       if ( riccio.options.per_row != per_row ) {

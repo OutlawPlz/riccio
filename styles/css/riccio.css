@@ -44,6 +44,10 @@
   clear: both;
 }
 
+.riccio__row-pop {
+  box-sizing: border-box;
+}
+
 .riccio__item {
   cursor: pointer;
 }
