@@ -1,61 +1,107 @@
 var gulp = require( 'gulp' ),
-    jshint = require( 'gulp-jshint' ),
     uglifyjs2 = require( 'gulp-minify' ),
     sass = require( 'gulp-sass' ),
     autoprefixer = require( 'gulp-autoprefixer' ),
     cssnano = require( 'gulp-cssnano' ),
     rename = require( 'gulp-rename' );
 
-var sassInput = './styles/scss/**/*.scss',
-    sassOutput = './styles/css';
 
-var jsInput = './js/**/*.js';
+// Path
+// -----------------------------------------------------------------------------
+
+var path = {
+
+  // Distribution path.
+  dist: './dist',
+
+  // JavaScript path.
+  js: './js/**/*.js',
+
+  // Styles path.
+  styles: {
+    sass: './styles/scss/**/*.scss',
+    css: './styles/css/**/*.css',
+    output: './styles/css'
+  },
+
+  // Test path.
+  test: {
+    sass: './test/style.scss',
+    output: './test'
+  }
+};
 
 
 // Options
 // -----------------------------------------------------------------------------
 
-var sassOptions = {
-  errLogToConsole: true,
-  outputStyle: 'expanded'
-};
+var options = {
 
-var autoprefixerOptions = {};
+  // SASS options.
+  sass: {
+    errLogToConsole: true,
+    outputStyle: 'expanded',
+    includePaths: []
+  },
 
-var uglifyjs2Options = {
-  ext: {
-    min: '.min.js'
+  // Autoprefixer options.
+  autoprefixer: {},
+
+  // UglifyJS2 options.
+  uglifyjs2: {
+    ext: {
+      min: '.min.js'
+    }
+  },
+
+  // Rename options.
+  rename: {
+    css: {
+      extname: '.min.css'
+    },
+
+    js: {
+      extname: '.min.js'
+    }
   }
 };
+
 
 // Tasks
 // -----------------------------------------------------------------------------
 
+// Compile SCSS.
 gulp.task( 'styles', function() {
-  return gulp.src( sassInput )
-    .pipe( sass( sassOptions ) ).on( 'error', sass.logError )
+  return gulp.src( path.styles.sass )
+    .pipe( sass( options.sass ) ).on( 'error', sass.logError )
     .pipe( autoprefixer() )
-    .pipe( gulp.dest( sassOutput ) );
+    .pipe( gulp.dest( path.styles.output ) );
 } );
 
-gulp.task( 'js', function() {
-  return gulp.src( jsInput )
-    .pipe( jshint() )
-    .pipe( jshint.reporter( 'default' ) );
-} );
-
+// Minify CSS.
 gulp.task( 'minify-css', function() {
-  return gulp.src( './styles/css/riccio.css' )
-    .pipe( gulp.dest( './dist' ) )
+  return gulp.src( path.styles.css )
     .pipe( cssnano() )
-    .pipe( rename( 'riccio.min.css' ) )
-    .pipe( gulp.dest( './dist' ) );
+    .pipe( rename( options.rename.css ) )
+    .pipe( gulp.dest( path.dist ) );
 } );
 
+// Minify JS.
 gulp.task( 'minify-js', function() {
-  return gulp.src( './js/riccio.js' )
-    .pipe( uglifyjs2( uglifyjs2Options ) )
-    .pipe( gulp.dest( './dist' ) );
+  return gulp.src( path.js )
+    .pipe( uglifyjs2( options.uglifyjs2 ) )
+    // .pipe( rename( options.rename.js ) )
+    .pipe( gulp.dest( path.dist ) );
 } );
 
-gulp.task( 'dist', ['styles', 'minify-css', 'minify-js'],function() {} );
+// Compile test SCSS.
+gulp.task( 'test-styles', function() {
+  return gulp.src( path.test.sass )
+    .pipe( sass( options.sass ) ).on( 'error', sass.logError )
+    .pipe( autoprefixer() )
+    .pipe( gulp.dest( path.test.output ) );
+} );
+
+gulp.task( 'dist', [ 'styles', 'minify-css', 'minify-js' ] );
+
+gulp.task( 'default', [ 'styles' ] );

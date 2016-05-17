@@ -8,6 +8,16 @@
   // Constructor
   // ---------------------------------------------------------------------------
 
+  /**
+   * Instantiate a new Riccio object.
+   *
+   * @param  {Node} element
+   *         The node on which Riccio will act.
+   * @param  {Object} options
+   *         An object containing Riccio options.
+   * @return {object}
+   *         A new Riccio object
+   */
   window.Riccio = function( element, options) {
 
     if ( element.nodeType != Node.ELEMENT_NODE ) {
@@ -59,6 +69,10 @@
   // Public methods
   // ---------------------------------------------------------------------------
 
+  /**
+   * Initialize a Riccio object. This function is called when a new Riccio 
+   * object is instantiate, or when a breakpoint is triggered.
+   */
   Riccio.prototype.init = function() {
     // Add Riccio class.
     this.element.classList.add( 'riccio' );
