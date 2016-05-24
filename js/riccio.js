@@ -70,7 +70,7 @@
   // ---------------------------------------------------------------------------
 
   /**
-   * Initialize a Riccio object. This function is called when a new Riccio 
+   * Initialize a Riccio object. This function is called when a new Riccio
    * object is instantiate, or when a breakpoint is triggered.
    */
   Riccio.prototype.init = function() {
@@ -84,7 +84,7 @@
         difference = info.needed - info.having;
 
     if ( info.having ) {
-      var rows = this.element.querySelectorAll( '.riccio__row' ),
+      var rows = this.element.querySelectorAll( '.riccio__row-item, .riccio__row-pop' ),
           rws_index = rows.length;
 
       for ( var i = 0; i < rws_index; i++ ) {
@@ -123,7 +123,7 @@
    */
   Riccio.prototype.needs = function( num ) {
     return {
-      having: this.element.querySelectorAll( 'riccio__row' ).length / 2,
+      having: this.element.querySelectorAll( '.riccio__row-item' ).length,
       needed: Math.ceil( num / this.options.per_row )
     };
   };

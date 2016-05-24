@@ -1,4 +1,24 @@
+@import 'breakpoint';
+
+// Custom font.
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700,700italic);
+
+
+// Variables
+// -----------------------------------------------------------------------------
+
+// Breakpoints
+$mobile: max-width 560px;
+$tablet: 561px 850px;
+$desktop: 851px;
+
+// Colors
+$text: #333;
+
+
+// Base
+// -----------------------------------------------------------------------------
+
 html {
   font-size: 100%;
   line-height: 1.5;
@@ -6,7 +26,7 @@ html {
 }
 
 body {
-  color: #333;
+  color: $text;
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -40,25 +60,29 @@ p {
   margin: 1.5em 0;
 }
 
+
+// Style
+// -----------------------------------------------------------------------------
+
 .wrapper-page {
   margin: 0 auto;
   max-width: 960px;
 }
 
-@media (max-width: 560px) {
-  .album-view::before {
+.album-view::before {
+
+  // Mobile
+  @include breakpoint($mobile) {
     content: '2';
   }
-}
 
-@media (min-width: 561px) and (max-width: 850px) {
-  .album-view::before {
+  // Tablet
+  @include breakpoint($tablet) {
     content: '3';
   }
-}
 
-@media (min-width: 851px) {
-  .album-view::before {
+  // Desktop
+  @include breakpoint($desktop) {
     content: '5';
   }
 }

@@ -5,6 +5,8 @@ var gulp = require( 'gulp' ),
     cssnano = require( 'gulp-cssnano' ),
     rename = require( 'gulp-rename' );
 
+var breakpointsass = './node_modules/breakpoint-sass/stylesheets/';
+
 
 // Path
 // -----------------------------------------------------------------------------
@@ -41,7 +43,9 @@ var options = {
   sass: {
     errLogToConsole: true,
     outputStyle: 'expanded',
-    includePaths: []
+    includePaths: [
+      breakpointsass
+    ]
   },
 
   // Autoprefixer options.
