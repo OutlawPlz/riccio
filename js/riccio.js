@@ -141,19 +141,17 @@
   Riccio.prototype.addAll = function( frag ) {
     var item_rows = frag.querySelectorAll( '.riccio__row-item' ),
         pop_rows = frag.querySelectorAll( '.riccio__row-pop' ),
-        item_store = this.element.querySelectorAll( this.options.item_selector ),
-        pop_store = this.element.querySelectorAll( this.options.pop_selector ),
-        itm_index = item_store.length,
+        itm_index = this.item_store.length,
         i = 0, // Items & Pops
         r = 0; // Rows
 
     while ( i < itm_index ) {
-      item_store[ i ].setAttribute( 'data-riccio', i );
-      item_store[ i ].classList.add( 'riccio__item' );
-      pop_store[ i ].classList.add( 'riccio__pop' );
+      this.item_store[ i ].setAttribute( 'data-riccio', i );
+      this.item_store[ i ].classList.add( 'riccio__item' );
+      this.pop_store[ i ].classList.add( 'riccio__pop' );
 
-      item_rows[ r ].appendChild( item_store[ i ] );
-      pop_rows[ r ].appendChild( pop_store[ i ] );
+      item_rows[ r ].appendChild( this.item_store[ i ] );
+      pop_rows[ r ].appendChild( this.pop_store[ i ] );
 
       i++;
 
@@ -405,7 +403,34 @@
       }
     }
 
+    // Filter mediaqueries by media property.
+    mediaqueries = unique( mediaqueries );
+
     return mediaqueries;
+  }
+
+  /**
+   * Loop over an array of media queries and return an array without duplicates.
+   *
+   * @param  {Array} array
+   *         The media queries array.
+   * @return {Array}
+   *         An array of media queries without duplicates.
+   */
+  function unique( array ) {
+    var unique = {},
+        distinct = [],
+        index = array.length;
+
+    while ( index-- ) {
+      if ( typeof ( unique[ array[ index ].media ] ) == 'undefined' ) {
+        distinct.push( array[ index ] );
+      }
+
+      unique[ array[ index ].media ] = 0;
+    }
+
+    return distinct;
   }
 
 
@@ -455,4 +480,4 @@
     }
   }
 
-} )();
+} () );
