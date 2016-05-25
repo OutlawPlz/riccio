@@ -2,8 +2,7 @@
 
   'use strict';
 
-  var console = window.console,
-      listener = true;
+  var console = window.console;
 
 
   // Constructor
@@ -33,7 +32,8 @@
     var defaults = {
       item_selector: '',
       pop_selector: '',
-      per_row: 1
+      per_row: 3,
+      media_queries: true
     };
 
     if ( arguments[ 1 ] && typeof arguments === 'object' ) {
@@ -59,12 +59,13 @@
 
     handleClick( this );
 
-    if ( listener ) {
-      var mediaqueries = getMediaQueries();
-
-      if ( mediaqueries.length ) {
-        handleMediaQueries( this, mediaqueries );
-      }
+    if ( Array.isArray( this.options.media_queries ) ) {
+      this.options.media_queries = toMediaQueries( this.options.media_queries );
+      handleMediaQueries( this, this.options.media_queries );
+    }
+    else if ( this.options.media_queries ) {
+      this.options.media_queries = getMediaQueries();
+      handleMediaQueries( this, this.options.media_queries );
     }
   };
 
@@ -223,7 +224,7 @@
         per_row = computed_style.getPropertyValue( 'content' );
 
     if ( per_row === 'none' ) {
-      return 1;
+      return 3;
     }
     else {
       return parseInt( per_row.slice( 1, -1 ), 10 );
@@ -373,6 +374,25 @@
   }
 
   /**
+   * Takes an array of strings and return an array of MediaQueryList.
+   *
+   * @param  {Array} array
+   *         The array of strings.
+   * @return {Array}
+   *         The array of MediaQueryList.
+   */
+  function toMediaQueries( array ) {
+    var mediaqueries = [],
+        qrs_index = array.length;
+
+    while ( qrs_index-- ) {
+      mediaqueries.push( window.matchMedia( array[ qrs_index ] ) );
+    }
+
+    return mediaqueries;
+  }
+
+  /**
    * Looks for media quesies in stylesheets and return an array of MediaQueryList.
    *
    * @return {Array}
@@ -470,12 +490,8 @@
   function handleMediaQueries( riccio, mediaqueries ) {
     var qrs_index = mediaqueries.length;
 
-    if ( listener ) {
-      while( qrs_index-- ) {
-        mediaqueries[ qrs_index ].addListener( callToInit );
-      }
-
-      listener = false;
+    while( qrs_index-- ) {
+      mediaqueries[ qrs_index ].addListener( callToInit );
     }
 
     function callToInit() {

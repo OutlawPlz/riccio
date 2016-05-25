@@ -32,7 +32,8 @@
     var defaults = {
       item_selector: '',
       pop_selector: '',
-      per_row: 1
+      per_row: 3,
+      media_queries: true
     };
 
     if ( arguments[ 1 ] && typeof arguments === 'object' ) {
@@ -58,10 +59,13 @@
 
     handleClick( this );
 
-    var mediaqueries = getMediaQueries();
-
-    if ( mediaqueries.length ) {
-      handleMediaQueries( this, mediaqueries );
+    if ( Array.isArray( this.options.media_queries ) ) {
+      this.options.media_queries = toMediaQueries( this.options.media_queries );
+      handleMediaQueries( this, this.options.media_queries );
+    }
+    else if ( this.options.media_queries ) {
+      this.options.media_queries = getMediaQueries();
+      handleMediaQueries( this, this.options.media_queries );
     }
   };
 
@@ -220,7 +224,7 @@
         per_row = computed_style.getPropertyValue( 'content' );
 
     if ( per_row === 'none' ) {
-      return 1;
+      return 3;
     }
     else {
       return parseInt( per_row.slice( 1, -1 ), 10 );
@@ -367,6 +371,25 @@
     }
 
     return index;
+  }
+
+  /**
+   * Takes an array of strings and return an array of MediaQueryList.
+   *
+   * @param  {Array} array
+   *         The array of strings.
+   * @return {Array}
+   *         The array of MediaQueryList.
+   */
+  function toMediaQueries( array ) {
+    var mediaqueries = [],
+        qrs_index = array.length;
+
+    while ( qrs_index-- ) {
+      mediaqueries.push( window.matchMedia( array[ qrs_index ] ) );
+    }
+
+    return mediaqueries;
   }
 
   /**
