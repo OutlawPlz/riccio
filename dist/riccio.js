@@ -343,8 +343,11 @@
    *         The previous element to which remove active class.
    */
   function toggleRow( row, prev ) {
-    if ( row != prev ) {
+    if ( prev && row != prev ) {
       prev.classList.remove( 'riccio__row-pop--active' );
+      row.classList.add( 'riccio__row-pop--active' );
+    }
+    else {
       row.classList.add( 'riccio__row-pop--active' );
     }
   }
