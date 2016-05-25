@@ -2,7 +2,8 @@
 
   'use strict';
 
-  var console = window.console;
+  var console = window.console,
+      listener = true;
 
 
   // Constructor
@@ -15,7 +16,7 @@
    *         The node on which Riccio will act.
    * @param  {Object} options
    *         An object containing Riccio options.
-   * @return {object}
+   * @return {object|Null}
    *         A new Riccio object
    */
   window.Riccio = function( element, options) {
@@ -58,10 +59,12 @@
 
     handleClick( this );
 
-    var mediaqueries = getMediaQueries();
+    if ( listener ) {
+      var mediaqueries = getMediaQueries();
 
-    if ( mediaqueries.length ) {
-      handleMediaQueries( this, mediaqueries );
+      if ( mediaqueries.length ) {
+        handleMediaQueries( this, mediaqueries );
+      }
     }
   };
 
@@ -210,7 +213,7 @@
   /**
    * Read the per_row option from CSS. If the option is not found return a
    * default value. The default value is 1.
-   * @param  {Node} elem
+   * @param  {Element} elem
    *         The element on which look for per_row option.
    * @return {Number}
    *         The number of elements to print in a row.
@@ -223,7 +226,7 @@
       return 1;
     }
     else {
-      return per_row.slice( 1, -1 );
+      return parseInt( per_row.slice( 1, -1 ), 10 );
     }
 
   }
@@ -333,14 +336,14 @@
    * Check if a row should be active or not. If active adds a CSS class,
    * otherwise removes it.
    *
-   * @param  {Node} elem
+   * @param  {Node} row
    *         The row to check if should be active or not.
    * @param  {Node} prev
    *         The previous element to which remove active class.
    */
   function toggleRow( row, prev ) {
-    if ( row != prev_row ) {
-      prev_row.classList.remove( 'riccio__row-pop--active' );
+    if ( row != prev ) {
+      prev.classList.remove( 'riccio__row-pop--active' );
       row.classList.add( 'riccio__row-pop--active' );
     }
   }
@@ -353,7 +356,7 @@
    *         The starting element.
    * @param  {Node} end
    *         The ending element.
-   * @return {String}
+   * @return {String|Boolean}
    *         The data-riccio value found. If not found return false.
    */
   function getIndex( start, end ) {
@@ -461,16 +464,21 @@
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
    * @param  {Array} mediaqueries
-   *         An array of MediaQueryList. Listeners will be attached to this elements.
+   *         An array of MediaQueryList. Listeners will be attached to this
+   *         elements.
    */
   function handleMediaQueries( riccio, mediaqueries ) {
     var qrs_index = mediaqueries.length;
 
-    while( qrs_index-- ) {
-      mediaqueries[ qrs_index ].addListener( callToInit );
+    if ( listener ) {
+      while( qrs_index-- ) {
+        mediaqueries[ qrs_index ].addListener( callToInit );
+      }
+
+      listener = false;
     }
 
-    function callToInit( mediaquery ) {
+    function callToInit() {
       var per_row = getPerRow( riccio.element );
 
       if ( riccio.options.per_row != per_row ) {
