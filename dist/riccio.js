@@ -343,12 +343,19 @@
    *         The previous element to which remove active class.
    */
   function toggleRow( row, prev ) {
-    if ( prev && row != prev ) {
-      prev.classList.remove( 'riccio__row-pop--active' );
-      row.classList.add( 'riccio__row-pop--active' );
+    var active = row.querySelector( '.riccio__pop--active' );
+
+    if ( active ) {
+      if ( prev && row != prev ) {
+        prev.classList.remove( 'riccio__row-pop--active' );
+        row.classList.add( 'riccio__row-pop--active' );
+      }
+      else {
+        row.classList.add( 'riccio__row-pop--active' );
+      }
     }
     else {
-      row.classList.add( 'riccio__row-pop--active' );
+      row.classList.remove( 'riccio__row-pop--active' );
     }
   }
 
