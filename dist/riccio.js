@@ -1,3 +1,8 @@
+/*!
+ * Riccio v1.0.2
+ * Adaptive grid view with expanding info box.
+ */
+
 ( function() {
 
   'use strict';
@@ -20,7 +25,7 @@
    */
   window.Riccio = function( element, options) {
 
-    if ( element.nodeType != Node.ELEMENT_NODE ) {
+    if ( element.nodeType !== Node.ELEMENT_NODE ) {
       if ( console ) {
         console.error( 'Riccio: the given element is not valid.', element );
       }
@@ -30,42 +35,42 @@
 
     // Default options;
     var defaults = {
-      item_selector: '',
-      pop_selector: '',
-      per_row: 3,
-      media_queries: true
+      itemSelector: '',
+      popSelector: '',
+      perRow: 3,
+      mediaQueries: true
     };
 
     if ( arguments[ 1 ] && typeof arguments === 'object' ) {
       this.options = extendDefaults( defaults, arguments[ 1 ] );
     }
 
-    this.options.per_row = getPerRow( this.element );
+    this.options.perRow = getPerRow( this.element );
 
-    var item_store = this.element.querySelectorAll( this.options.item_selector ),
-        pop_store = this.element.querySelectorAll( this.options.pop_selector );
+    var itemStore = this.element.querySelectorAll( this.options.itemSelector ),
+        popStore = this.element.querySelectorAll( this.options.popSelector );
 
-    if ( item_store.length != pop_store.length ) {
+    if ( itemStore.length !== popStore.length ) {
       if ( console ) {
         console.error( 'Riccio: items number and pops number doesn\'t match.');
       }
       return;
     }
 
-    this.item_store = item_store;
-    this.pop_store = pop_store;
+    this.itemStore = itemStore;
+    this.popStore = popStore;
 
     this.init();
 
     handleClick( this );
 
-    if ( Array.isArray( this.options.media_queries ) ) {
-      this.options.media_queries = toMediaQueries( this.options.media_queries );
-      handleMediaQueries( this, this.options.media_queries );
+    if ( Array.isArray( this.options.mediaQueries ) ) {
+      this.options.mediaQueries = toMediaQueries( this.options.mediaQueries );
+      handleMediaQueries( this, this.options.mediaQueries );
     }
-    else if ( this.options.media_queries ) {
-      this.options.media_queries = getMediaQueries();
-      handleMediaQueries( this, this.options.media_queries );
+    else if ( this.options.mediaQueries ) {
+      this.options.mediaQueries = getMediaQueries();
+      handleMediaQueries( this, this.options.mediaQueries );
     }
   };
 
@@ -82,22 +87,22 @@
     this.element.classList.add( 'riccio' );
 
     var fragment = document.createDocumentFragment(),
-        items = this.element.querySelectorAll( this.options.item_selector ),
-        itms_index = items.length,
-        info = this.needs( itms_index ),
+        items = this.element.querySelectorAll( this.options.itemSelector ),
+        itmsIndex = items.length,
+        info = this.needs( itmsIndex ),
         difference = info.needed - info.having;
 
     if ( info.having ) {
       var rows = this.element.querySelectorAll( '.riccio__row-item, .riccio__row-pop' ),
-          rws_index = rows.length;
+          rwsIndex = rows.length;
 
-      for ( var i = 0; i < rws_index; i++ ) {
+      for ( var i = 0; i < rwsIndex; i++ ) {
         fragment.appendChild( rows[ i ] );
       }
     }
 
     if ( difference ) {
-      if ( Math.sign( difference ) === -1 ) {
+      if ( sign( difference ) === -1 ) {
         difference *= -1; // Be positive.
         fragment = removeRows( fragment, difference );
       }
@@ -128,7 +133,7 @@
   Riccio.prototype.needs = function( num ) {
     return {
       having: this.element.querySelectorAll( '.riccio__row-item' ).length,
-      needed: Math.ceil( num / this.options.per_row )
+      needed: Math.ceil( num / this.options.perRow )
     };
   };
 
@@ -143,24 +148,24 @@
    *         The given element with items and pops appended.
    */
   Riccio.prototype.addAll = function( frag ) {
-    var item_rows = frag.querySelectorAll( '.riccio__row-item' ),
-        pop_rows = frag.querySelectorAll( '.riccio__row-pop' ),
-        itm_index = this.item_store.length,
+    var itemRows = frag.querySelectorAll( '.riccio__row-item' ),
+        popRows = frag.querySelectorAll( '.riccio__row-pop' ),
+        itmIndex = this.itemStore.length,
         i = 0, // Items & Pops
         r = 0; // Rows
 
-    while ( i < itm_index ) {
-      this.item_store[ i ].setAttribute( 'data-riccio', i );
-      this.item_store[ i ].classList.add( 'riccio__item' );
-      this.pop_store[ i ].classList.add( 'riccio__pop' );
+    while ( i < itmIndex ) {
+      this.itemStore[ i ].setAttribute( 'data-riccio', i );
+      this.itemStore[ i ].classList.add( 'riccio__item' );
+      this.popStore[ i ].classList.add( 'riccio__pop' );
 
-      item_rows[ r ].appendChild( this.item_store[ i ] );
-      pop_rows[ r ].appendChild( this.pop_store[ i ] );
+      itemRows[ r ].appendChild( this.itemStore[ i ] );
+      popRows[ r ].appendChild( this.popStore[ i ] );
 
       i++;
 
-      var row_full = i % this.options.per_row;
-      if ( !row_full ) {
+      var rowFull = i % this.options.perRow;
+      if ( !rowFull ) {
         r++;
       }
     }
@@ -172,16 +177,16 @@
    * Open or close the element corresponding to the given index.
    *
    * @param {String} index
-   *        The index of the pop_store corresponding to the element to open.
+   *        The index of the popStore corresponding to the element to open.
    */
   Riccio.prototype.toggle = function( index ) {
-    var prev_pop = this.element.querySelector( '.riccio__pop--active' ),
-        prev_item = this.element.querySelector( '.riccio__item--active' ),
-        prev_row = this.element.querySelector( '.riccio__row-pop--active' );
+    var prevPop = this.element.querySelector( '.riccio__pop--active' ),
+        prevItem = this.element.querySelector( '.riccio__item--active' ),
+        prevRow = this.element.querySelector( '.riccio__row-pop--active' );
 
-    toggleItem( this.item_store[ index ], prev_item );
-    togglePop( this.pop_store[ index ], prev_pop );
-    toggleRow( this.pop_store[ index ].parentElement, prev_row );
+    toggleItem( this.itemStore[ index ], prevItem );
+    togglePop( this.popStore[ index ], prevPop );
+    toggleRow( this.popStore[ index ].parentElement, prevRow );
   };
 
 
@@ -212,22 +217,22 @@
   }
 
   /**
-   * Read the per_row option from CSS. If the option is not found return a
+   * Read the perRow option from CSS. If the option is not found return a
    * default value. The default value is 1.
    * @param  {Element} elem
-   *         The element on which look for per_row option.
+   *         The element on which look for perRow option.
    * @return {Number}
    *         The number of elements to print in a row.
    */
   function getPerRow( elem ) {
-    var computed_style = getComputedStyle( elem, ':before' ),
-        per_row = computed_style.getPropertyValue( 'content' );
+    var computedStyle = getComputedStyle( elem, ':before' ),
+        perRow = computedStyle.getPropertyValue( 'content' );
 
-    if ( per_row === 'none' ) {
+    if ( perRow === 'none' ) {
       return 3;
     }
     else {
-      return parseInt( per_row.slice( 1, -1 ), 10 );
+      return parseInt( perRow.slice( 1, -1 ), 10 );
     }
 
   }
@@ -346,7 +351,7 @@
     var active = row.querySelector( '.riccio__pop--active' );
 
     if ( active ) {
-      if ( prev && row != prev ) {
+      if ( prev && row !== prev ) {
         prev.classList.remove( 'riccio__row-pop--active' );
         row.classList.add( 'riccio__row-pop--active' );
       }
@@ -373,7 +378,7 @@
   function getIndex( start, end ) {
     var index = false;
 
-    while ( start != end ) {
+    while ( start !== end ) {
       if ( start.hasAttribute( 'data-riccio' ) ) {
         return start.getAttribute( 'data-riccio' );
       }
@@ -393,10 +398,10 @@
    */
   function toMediaQueries( array ) {
     var mediaqueries = [],
-        qrs_index = array.length;
+        qrsIndex = array.length;
 
-    while ( qrs_index-- ) {
-      mediaqueries.push( window.matchMedia( array[ qrs_index ] ) );
+    while ( qrsIndex-- ) {
+      mediaqueries.push( window.matchMedia( array[ qrsIndex ] ) );
     }
 
     return mediaqueries;
@@ -411,27 +416,27 @@
   function getMediaQueries() {
     var mediaqueries = [],
         stylesheets = document.styleSheets,
-        sht_index = stylesheets.length,
-        css_rules = 0,
-        rls_index = 0;
+        shtIndex = stylesheets.length,
+        cssRules = 0,
+        rlsIndex = 0;
 
-    while ( sht_index-- ) {
+    while ( shtIndex-- ) {
       try {
-        css_rules = stylesheets[ sht_index ].cssRules;
+        cssRules = stylesheets[ shtIndex ].cssRules;
       }
       catch ( error ) {
-        css_rules = 0;
+        cssRules = 0;
       }
       /*
       When javascript and stylesheets are in files on the local drive
       document.styleSheets[ index ].cssRules return null. This is why Riccio
       doesn't react to media queries change.
        */
-      rls_index = css_rules ? css_rules.length : 0;
+      rlsIndex = cssRules ? cssRules.length : 0;
 
-      while ( rls_index-- ) {
-        if ( css_rules[ rls_index ].constructor === CSSMediaRule ) {
-          mediaqueries.push( window.matchMedia( css_rules[ rls_index ].media.mediaText ) );
+      while ( rlsIndex-- ) {
+        if ( cssRules[ rlsIndex ].constructor === CSSMediaRule ) {
+          mediaqueries.push( window.matchMedia( cssRules[ rlsIndex ].media.mediaText ) );
         }
       }
     }
@@ -466,6 +471,20 @@
     return distinct;
   }
 
+  /**
+   * Check the sign of the given number, and return -1 if negative, 1 if
+   * positive and 0 if zero.
+   *
+   * @param  {number} num
+   *         The number to check.
+   * @return {Number}
+   *         A number indicating the sign of the given number. -1
+   *         if negative, 1 if positive and 0 if zero.
+   */
+  function sign( num ) {
+    return num ? num < 0 ? -1 : 1 : 0;
+  }
+
 
   // Events
   // ---------------------------------------------------------------------------
@@ -489,29 +508,392 @@
 
   /**
    * Attach an event listener to the given media queries. When a query is
-   * triggered it check if per_row has changed, if so re-init Riccio.
+   * triggered it check if perRow has changed, if so re-init Riccio.
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
    * @param  {Array} mediaqueries
-   *         An array of MediaQueryList. Listeners will be attached to this
-   *         elements.
+   *         An array of MediaQueryList. Listeners will be attached to this.
    */
   function handleMediaQueries( riccio, mediaqueries ) {
-    var qrs_index = mediaqueries.length;
+    var qrsIndex = mediaqueries.length;
 
-    while( qrs_index-- ) {
-      mediaqueries[ qrs_index ].addListener( callToInit );
+    while( qrsIndex-- ) {
+      mediaqueries[ qrsIndex ].addListener( callToInit );
     }
 
     function callToInit() {
-      var per_row = getPerRow( riccio.element );
+      var perRow = getPerRow( riccio.element );
 
-      if ( riccio.options.per_row != per_row ) {
-        riccio.options.per_row = per_row;
+      if ( riccio.options.perRow !== perRow ) {
+        riccio.options.perRow = perRow;
         riccio.init();
       }
     }
   }
 
 } () );
+
+/*
+ * classList.js: Cross-browser full element.classList implementation.
+ * 1.1.20150312
+ *
+ * By Eli Grey, http://eligrey.com
+ * License: Dedicated to the public domain.
+ *   See https://github.com/eligrey/classList.js/blob/master/LICENSE.md
+ */
+
+/*global self, document, DOMException */
+
+/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js */
+
+if ("document" in self) {
+
+// Full polyfill for browsers with no classList support
+// Including IE < Edge missing SVGElement.classList
+if (!("classList" in document.createElement("_")) 
+	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
+
+(function (view) {
+
+"use strict";
+
+if (!('Element' in view)) return;
+
+var
+	  classListProp = "classList"
+	, protoProp = "prototype"
+	, elemCtrProto = view.Element[protoProp]
+	, objCtr = Object
+	, strTrim = String[protoProp].trim || function () {
+		return this.replace(/^\s+|\s+$/g, "");
+	}
+	, arrIndexOf = Array[protoProp].indexOf || function (item) {
+		var
+			  i = 0
+			, len = this.length
+		;
+		for (; i < len; i++) {
+			if (i in this && this[i] === item) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	// Vendors: please allow content code to instantiate DOMExceptions
+	, DOMEx = function (type, message) {
+		this.name = type;
+		this.code = DOMException[type];
+		this.message = message;
+	}
+	, checkTokenAndGetIndex = function (classList, token) {
+		if (token === "") {
+			throw new DOMEx(
+				  "SYNTAX_ERR"
+				, "An invalid or illegal string was specified"
+			);
+		}
+		if (/\s/.test(token)) {
+			throw new DOMEx(
+				  "INVALID_CHARACTER_ERR"
+				, "String contains an invalid character"
+			);
+		}
+		return arrIndexOf.call(classList, token);
+	}
+	, ClassList = function (elem) {
+		var
+			  trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
+			, classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
+			, i = 0
+			, len = classes.length
+		;
+		for (; i < len; i++) {
+			this.push(classes[i]);
+		}
+		this._updateClassName = function () {
+			elem.setAttribute("class", this.toString());
+		};
+	}
+	, classListProto = ClassList[protoProp] = []
+	, classListGetter = function () {
+		return new ClassList(this);
+	}
+;
+// Most DOMException implementations don't allow calling DOMException's toString()
+// on non-DOMExceptions. Error's toString() is sufficient here.
+DOMEx[protoProp] = Error[protoProp];
+classListProto.item = function (i) {
+	return this[i] || null;
+};
+classListProto.contains = function (token) {
+	token += "";
+	return checkTokenAndGetIndex(this, token) !== -1;
+};
+classListProto.add = function () {
+	var
+		  tokens = arguments
+		, i = 0
+		, l = tokens.length
+		, token
+		, updated = false
+	;
+	do {
+		token = tokens[i] + "";
+		if (checkTokenAndGetIndex(this, token) === -1) {
+			this.push(token);
+			updated = true;
+		}
+	}
+	while (++i < l);
+
+	if (updated) {
+		this._updateClassName();
+	}
+};
+classListProto.remove = function () {
+	var
+		  tokens = arguments
+		, i = 0
+		, l = tokens.length
+		, token
+		, updated = false
+		, index
+	;
+	do {
+		token = tokens[i] + "";
+		index = checkTokenAndGetIndex(this, token);
+		while (index !== -1) {
+			this.splice(index, 1);
+			updated = true;
+			index = checkTokenAndGetIndex(this, token);
+		}
+	}
+	while (++i < l);
+
+	if (updated) {
+		this._updateClassName();
+	}
+};
+classListProto.toggle = function (token, force) {
+	token += "";
+
+	var
+		  result = this.contains(token)
+		, method = result ?
+			force !== true && "remove"
+		:
+			force !== false && "add"
+	;
+
+	if (method) {
+		this[method](token);
+	}
+
+	if (force === true || force === false) {
+		return force;
+	} else {
+		return !result;
+	}
+};
+classListProto.toString = function () {
+	return this.join(" ");
+};
+
+if (objCtr.defineProperty) {
+	var classListPropDesc = {
+		  get: classListGetter
+		, enumerable: true
+		, configurable: true
+	};
+	try {
+		objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+	} catch (ex) { // IE 8 doesn't support enumerable:true
+		if (ex.number === -0x7FF5EC54) {
+			classListPropDesc.enumerable = false;
+			objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+		}
+	}
+} else if (objCtr[protoProp].__defineGetter__) {
+	elemCtrProto.__defineGetter__(classListProp, classListGetter);
+}
+
+}(self));
+
+} else {
+// There is full or partial native classList support, so just check if we need
+// to normalize the add/remove and toggle APIs.
+
+(function () {
+	"use strict";
+
+	var testElement = document.createElement("_");
+
+	testElement.classList.add("c1", "c2");
+
+	// Polyfill for IE 10/11 and Firefox <26, where classList.add and
+	// classList.remove exist but support only one argument at a time.
+	if (!testElement.classList.contains("c2")) {
+		var createMethod = function(method) {
+			var original = DOMTokenList.prototype[method];
+
+			DOMTokenList.prototype[method] = function(token) {
+				var i, len = arguments.length;
+
+				for (i = 0; i < len; i++) {
+					token = arguments[i];
+					original.call(this, token);
+				}
+			};
+		};
+		createMethod('add');
+		createMethod('remove');
+	}
+
+	testElement.classList.toggle("c3", false);
+
+	// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
+	// support the second argument.
+	if (testElement.classList.contains("c3")) {
+		var _toggle = DOMTokenList.prototype.toggle;
+
+		DOMTokenList.prototype.toggle = function(token, force) {
+			if (1 in arguments && !this.contains(token) === !force) {
+				return force;
+			} else {
+				return _toggle.call(this, token);
+			}
+		};
+
+	}
+
+	testElement = null;
+}());
+
+}
+
+}
+
+
+/*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas, David Knight. Dual MIT/BSD license */
+
+window.matchMedia || (window.matchMedia = function() {
+    "use strict";
+
+    // For browsers that support matchMedium api such as IE 9 and webkit
+    var styleMedia = (window.styleMedia || window.media);
+
+    // For those that don't support matchMedium
+    if (!styleMedia) {
+        var style       = document.createElement('style'),
+            script      = document.getElementsByTagName('script')[0],
+            info        = null;
+
+        style.type  = 'text/css';
+        style.id    = 'matchmediajs-test';
+
+        script.parentNode.insertBefore(style, script);
+
+        // 'style.currentStyle' is used by IE <= 8 and 'window.getComputedStyle' for all other browsers
+        info = ('getComputedStyle' in window) && window.getComputedStyle(style, null) || style.currentStyle;
+
+        styleMedia = {
+            matchMedium: function(media) {
+                var text = '@media ' + media + '{ #matchmediajs-test { width: 1px; } }';
+
+                // 'style.styleSheet' is used by IE <= 8 and 'style.textContent' for all other browsers
+                if (style.styleSheet) {
+                    style.styleSheet.cssText = text;
+                } else {
+                    style.textContent = text;
+                }
+
+                // Test if media query is true or false
+                return info.width === '1px';
+            }
+        };
+    }
+
+    return function(media) {
+        return {
+            matches: styleMedia.matchMedium(media || 'all'),
+            media: media || 'all'
+        };
+    };
+}());
+
+/*! matchMedia() polyfill addListener/removeListener extension. Author & copyright (c) 2012: Scott Jehl. Dual MIT/BSD license */
+(function(){
+    // Bail out for browsers that have addListener support
+    if (window.matchMedia && window.matchMedia('all').addListener) {
+        return false;
+    }
+
+    var localMatchMedia = window.matchMedia,
+        hasMediaQueries = localMatchMedia('only all').matches,
+        isListening     = false,
+        timeoutID       = 0,    // setTimeout for debouncing 'handleChange'
+        queries         = [],   // Contains each 'mql' and associated 'listeners' if 'addListener' is used
+        handleChange    = function(evt) {
+            // Debounce
+            clearTimeout(timeoutID);
+
+            timeoutID = setTimeout(function() {
+                for (var i = 0, il = queries.length; i < il; i++) {
+                    var mql         = queries[i].mql,
+                        listeners   = queries[i].listeners || [],
+                        matches     = localMatchMedia(mql.media).matches;
+
+                    // Update mql.matches value and call listeners
+                    // Fire listeners only if transitioning to or from matched state
+                    if (matches !== mql.matches) {
+                        mql.matches = matches;
+
+                        for (var j = 0, jl = listeners.length; j < jl; j++) {
+                            listeners[j].call(window, mql);
+                        }
+                    }
+                }
+            }, 30);
+        };
+
+    window.matchMedia = function(media) {
+        var mql         = localMatchMedia(media),
+            listeners   = [],
+            index       = 0;
+
+        mql.addListener = function(listener) {
+            // Changes would not occur to css media type so return now (Affects IE <= 8)
+            if (!hasMediaQueries) {
+                return;
+            }
+
+            // Set up 'resize' listener for browsers that support CSS3 media queries (Not for IE <= 8)
+            // There should only ever be 1 resize listener running for performance
+            if (!isListening) {
+                isListening = true;
+                window.addEventListener('resize', handleChange, true);
+            }
+
+            // Push object only if it has not been pushed already
+            if (index === 0) {
+                index = queries.push({
+                    mql         : mql,
+                    listeners   : listeners
+                });
+            }
+
+            listeners.push(listener);
+        };
+
+        mql.removeListener = function(listener) {
+            for (var i = 0, il = listeners.length; i < il; i++){
+                if (listeners[i] === listener){
+                    listeners.splice(i, 1);
+                }
+            }
+        };
+
+        return mql;
+    };
+}());

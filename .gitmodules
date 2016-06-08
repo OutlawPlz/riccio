@@ -1,0 +1,6 @@
+[submodule "js/shims/matchMedia.js"]
+	path = js/shims/matchMedia.js
+	url = https://github.com/paulirish/matchMedia.js.git
+[submodule "js/shims/classList.js"]
+	path = js/shims/classList.js
+	url = https://github.com/eligrey/classList.js.git
