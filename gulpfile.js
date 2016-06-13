@@ -62,7 +62,9 @@ var options = {
   uglifyjs2: {
     ext: {
       min: '.min.js'
-    }
+    },
+
+    preserveComments: 'some'
   },
 
   // Rename options.
@@ -99,6 +101,7 @@ gulp.task( 'styles', function() {
 gulp.task( 'minify-css', function() {
   return gulp.src( path.styles.css )
     .pipe( concat( options.concat.css ) )
+    .pipe( gulp.dest( path.dist ) )
     .pipe( cssnano() )
     .pipe( rename( options.rename.css ) )
     .pipe( gulp.dest( path.dist ) );
@@ -112,7 +115,7 @@ gulp.task( 'minify-js', function() {
     .pipe( gulp.dest( path.dist ) );
 } );
 
-// Compile test SCSS.
+// Test files operations.
 gulp.task( 'test', function() {
   return gulp.src( path.test.sass )
     .pipe( sass( options.sass ) ).on( 'error', sass.logError )

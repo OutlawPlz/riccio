@@ -1,5 +1,5 @@
 /*!
- * Riccio v1.0.3
+ * Riccio - v1.0.3
  * Adaptive grid view with expanding info box.
  */
 
