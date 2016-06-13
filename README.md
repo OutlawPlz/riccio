@@ -3,7 +3,7 @@
 Adaptive grid view whith expanding info box.
 
 Have you ever seen the iTunes Album view or the Google Image grid? With this
-little JavaScript you can implements those view in no time.
+little JavaScript you can implement those view in no time.
 
 ## Quick Start
 
@@ -59,6 +59,7 @@ var riccio = new Riccio( element, {
   mediaQueries: true // True, false or an array of string representing the media queries.
 } );
 ```
+
 ```html
 <div class="album-view"> <!-- The Riccio's element -->
   <div class="album"> <!-- The item selector -->
@@ -93,11 +94,10 @@ this option to the number of items you want to display in a row.
 ### mediaQueries
 
 If you set this option to `true`, Riccio try to get media queries from your CSS.
-However we know that this function doesn't play nice with at-rules, such as
-`@import` or `@charset`.
 
-If this is your case, you can set this option to an array of media queries, or
-to `false` to completly disable the function.
+However we know that this function doesn't play nice with at-rules, such as
+`@import` or `@charset`. If this is your case, you can set this option to an
+array of media queries, or to `false` to completly disable the function.
 
 ```js
 // Media queries array.
