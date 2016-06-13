@@ -67,3 +67,7 @@ p {
   float: left;
   margin-right: 15px;
 }
+
+.riccio__row-pop--active {
+  background-color: #f5f5f5;
+}

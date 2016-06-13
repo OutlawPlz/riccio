@@ -89,6 +89,8 @@
     var fragment = document.createDocumentFragment(),
         items = this.element.querySelectorAll( this.options.itemSelector ),
         itmsIndex = items.length,
+        activePop = this.element.querySelector( '.riccio__pop--active' ),
+        prevRow = this.element.querySelector( '.riccio__row-pop--active' ),
         info = this.needs( itmsIndex ),
         difference = info.needed - info.having;
 
@@ -114,6 +116,10 @@
     fragment = this.addAll( fragment );
 
     this.element.appendChild( fragment );
+
+    if ( activePop ) {
+      toggleRow( activePop.parentElement, prevRow );
+    }
   };
 
   /**

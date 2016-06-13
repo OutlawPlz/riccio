@@ -14,6 +14,7 @@ $desktop: 851px;
 
 // Colors
 $text: #333;
+$rowpop: #f5f5f5;
 
 
 // Base
@@ -90,4 +91,8 @@ p {
 .album {
   float: left;
   margin-right: 15px;
+}
+
+.riccio__row-pop--active {
+  background-color: $rowpop;
 }
