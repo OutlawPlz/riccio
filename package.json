@@ -1,6 +1,6 @@
 {
   "name": "riccio",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Adaptive grid view with expanding info box.",
   "main": "index.js",
   "directories": {

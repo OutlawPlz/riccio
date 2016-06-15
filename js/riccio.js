@@ -1,5 +1,5 @@
 /*!
- * Riccio - v1.0.4
+ * Riccio - v1.0.5
  * Adaptive grid view with expanding info box.
  */
 
@@ -23,7 +23,7 @@
    * @return {object|Null}
    *         A new Riccio object
    */
-  window.Riccio = function( element, options) {
+  window.Riccio = function( element, options ) {
 
     if ( element.nodeType !== Node.ELEMENT_NODE ) {
       if ( console ) {
@@ -33,7 +33,7 @@
     }
     this.element = element;
 
-    // Default options;
+    // Default options.
     var defaults = {
       itemSelector: '',
       popSelector: '',
