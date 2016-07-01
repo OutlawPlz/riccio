@@ -65,15 +65,6 @@
 
     handleClick( this );
 
-    if ( Array.isArray( this.options.mediaQueries ) ) {
-      this.options.mediaQueries = toMediaQueries( this.options.mediaQueries );
-      handleMediaQueries( this, this.options.mediaQueries );
-    }
-    else if ( this.options.mediaQueries ) {
-      this.options.mediaQueries = getMediaQueries();
-      handleMediaQueries( this, this.options.mediaQueries );
-    }
-
     if ( !mediaQueries.length ) {
       this.options.mediaQueries = getMediaQueries( this.options.mediaQueries );
     }
@@ -97,11 +88,89 @@
     this.element.classList.add( 'riccio' );
 
     var fragment = document.createDocumentFragment(),
-        items = this.element.querySelectorAll( this.options.itemSelector ),
-        itmsIndex = items.length,
         activePop = this.element.querySelector( '.riccio__pop--active' ),
-        prevRow = this.element.querySelector( '.riccio__row-pop--active' ),
-        info = this.needs( itmsIndex ),
+        prevRow = this.element.querySelector( '.riccio__row-pop--active' );
+
+    fragment = this.setRows( fragment );
+    fragment = this.setItems( fragment );
+
+    this.element.appendChild( fragment );
+
+    if ( activePop ) {
+      toggleRow( activePop.parentElement, prevRow );
+    }
+  };
+
+  /**
+   * Return the number of rows you have and the number of rows you need to wrap
+   * the items.
+   *
+   * As other functions it counts an item row and the relative pop row as a
+   * single element. So if you need two rows, it means that you need two item
+   * rows and two pop rows.
+   *
+   * @return {Object}
+   *         An object containing the number of rows you have and the number of
+   *         rows you need, keyed by "having" and "needed".
+   */
+  Riccio.prototype.needs = function() {
+
+    var itmsIndex = this.element.querySelectorAll( this.options.itemSelector ).length;
+
+    return {
+      having: this.element.querySelectorAll( '.riccio__row-item' ).length,
+      needed: Math.ceil( itmsIndex / this.options.perRow )
+    };
+  };
+
+  /**
+   * Takes items and pops in this.element and appends them to the given node.
+   * The function doesn't check if there are enough rows, is up to you provide
+   * the correct number of rows.
+   *
+   * @param  {Node} fragment
+   *         The element to which append items and pops.
+   * @return {Node}
+   *         The given element with items and pops appended.
+   */
+  Riccio.prototype.setItems = function( fragment ) {
+
+    var itemRows = fragment.querySelectorAll( '.riccio__row-item' ),
+        popRows = fragment.querySelectorAll( '.riccio__row-pop' ),
+        itmIndex = this.itemStore.length,
+        i = 0, // Items & Pops
+        r = 0; // Rows
+
+    while ( i < itmIndex ) {
+      this.itemStore[ i ].setAttribute( 'data-riccio', i );
+      this.itemStore[ i ].classList.add( 'riccio__item' );
+      this.popStore[ i ].classList.add( 'riccio__pop' );
+
+      itemRows[ r ].appendChild( this.itemStore[ i ] );
+      popRows[ r ].appendChild( this.popStore[ i ] );
+
+      i++;
+
+      var rowFull = i % this.options.perRow;
+      if ( !rowFull ) {
+        r++;
+      }
+    }
+
+    return fragment;
+  };
+
+  /**
+   * Return a document fragment with the rigth number of pops and items rows.
+   *
+   * @param  {Node} fragment
+   *         The element to which append rows.
+   * @return {Node}
+   *         The given element with rows appended.
+   */
+  Riccio.prototype.setRows = function( fragment ) {
+
+    var info = this.needs(),
         difference = info.needed - info.having;
 
     if ( info.having ) {
@@ -123,70 +192,7 @@
       }
     }
 
-    fragment = this.addAll( fragment );
-
-    this.element.appendChild( fragment );
-
-    if ( activePop ) {
-      toggleRow( activePop.parentElement, prevRow );
-    }
-  };
-
-  /**
-   * Return the number of rows you have and the number of rows you need to wrap
-   * the given number of items.
-   *
-   * As other functions it counts an item row and the relative pop row as a
-   * single element. So if you need two rows, it means that you need two item
-   * rows and two pop rows.
-   *
-   * @param  {Number} num
-   *         The number of items you want to add.
-   * @return {Object}
-   *         An object containing the number of rows you have and the number of
-   *         rows you need, keyed by "having" and "needed".
-   */
-  Riccio.prototype.needs = function( num ) {
-    return {
-      having: this.element.querySelectorAll( '.riccio__row-item' ).length,
-      needed: Math.ceil( num / this.options.perRow )
-    };
-  };
-
-  /**
-   * Takes items and pops in this.element and appends them to the given node.
-   * The function doesn't check if there are enough rows, is up to you provide
-   * the correct number of rows.
-   *
-   * @param  {Node} frag
-   *         The element to which append items and pops.
-   * @return {Node}
-   *         The given element with items and pops appended.
-   */
-  Riccio.prototype.addAll = function( frag ) {
-    var itemRows = frag.querySelectorAll( '.riccio__row-item' ),
-        popRows = frag.querySelectorAll( '.riccio__row-pop' ),
-        itmIndex = this.itemStore.length,
-        i = 0, // Items & Pops
-        r = 0; // Rows
-
-    while ( i < itmIndex ) {
-      this.itemStore[ i ].setAttribute( 'data-riccio', i );
-      this.itemStore[ i ].classList.add( 'riccio__item' );
-      this.popStore[ i ].classList.add( 'riccio__pop' );
-
-      itemRows[ r ].appendChild( this.itemStore[ i ] );
-      popRows[ r ].appendChild( this.popStore[ i ] );
-
-      i++;
-
-      var rowFull = i % this.options.perRow;
-      if ( !rowFull ) {
-        r++;
-      }
-    }
-
-    return frag;
+    return fragment;
   };
 
   /**
@@ -196,6 +202,7 @@
    *        The index of the popStore corresponding to the element to open.
    */
   Riccio.prototype.toggle = function( index ) {
+
     var prevPop = this.element.querySelector( '.riccio__pop--active' ),
         prevItem = this.element.querySelector( '.riccio__item--active' ),
         prevRow = this.element.querySelector( '.riccio__row-pop--active' );
@@ -407,20 +414,20 @@
   /**
    * Takes an array of strings and return an array of MediaQueryList.
    *
-   * @param  {Array} array
-   *         The array of strings.
+   * @param  {Array} mediaQueriesString
+   *         The array of strings representing mediaQueries.
    * @return {Array}
    *         The array of MediaQueryList.
    */
-  function toMediaQueries( array ) {
-    var mediaqueries = [],
-        qrsIndex = array.length;
+  function toMediaQueries( mediaQueriesString ) {
+    var qrsIndex = mediaQueriesString.length;
 
     while ( qrsIndex-- ) {
-      mediaqueries.push( window.matchMedia( array[ qrsIndex ] ) );
+      // Save in mediaQueries my MediaQueryList.
+      mediaQueries.push( window.matchMedia( mediaQueriesString[ qrsIndex ] ) );
     }
 
-    return mediaqueries;
+    return mediaQueries;
   }
 
   /**
@@ -440,8 +447,7 @@
       return false;
     }
     else if ( Array.isArray( mediaQueriesOption ) ) {
-      mediaQueries = toMediaQueries( mediaQueriesOption );
-      return mediaQueries;
+      return toMediaQueries( mediaQueriesOption );
     }
 
     var styleSheets = document.styleSheets,
