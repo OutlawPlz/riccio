@@ -1,5 +1,5 @@
 /*!
- * Riccio - v1.0.5
+ * Riccio - v1.0.6
  * Adaptive grid view with expanding info box.
  */
 
@@ -7,7 +7,8 @@
 
   'use strict';
 
-  var console = window.console;
+  var console = window.console,
+      mediaQueries = [];
 
 
   // Constructor
@@ -72,6 +73,15 @@
       this.options.mediaQueries = getMediaQueries();
       handleMediaQueries( this, this.options.mediaQueries );
     }
+
+    if ( !mediaQueries.length ) {
+      this.options.mediaQueries = getMediaQueries( this.options.mediaQueries );
+    }
+    else {
+      this.options.mediaQueries = mediaQueries;
+    }
+
+    handleMediaQueries( this );
   };
 
 
@@ -414,21 +424,34 @@
   }
 
   /**
-   * Looks for media quesies in stylesheets and return an array of MediaQueryList.
+   * Takes the mediaQueries option. If the option is false the function returns
+   * false. If the option is an array, convert the array in array of
+   * MediaQueryList. Otherwise it try to get mediaQueries from the css and
+   * return an array of MediaQueryList.
    *
-   * @return {Array}
-   *         An array of MediaQueryList.
+   * @param  {Boolean|Array} mediaQueriesOption
+   *         A boolean indicating if calculate mediaQueries or not, or an array
+   *         of strings representing mediaQueries.
+   * @return {false|Array}
+   *         False or an array of MediaQueryList
    */
-  function getMediaQueries() {
-    var mediaqueries = [],
-        stylesheets = document.styleSheets,
-        shtIndex = stylesheets.length,
+  function getMediaQueries( mediaQueriesOption ) {
+    if ( !mediaQueriesOption ) {
+      return false;
+    }
+    else if ( Array.isArray( mediaQueriesOption ) ) {
+      mediaQueries = toMediaQueries( mediaQueriesOption );
+      return mediaQueries;
+    }
+
+    var styleSheets = document.styleSheets,
+        shtIndex = styleSheets.length,
         cssRules = 0,
         rlsIndex = 0;
 
     while ( shtIndex-- ) {
       try {
-        cssRules = stylesheets[ shtIndex ].cssRules;
+        cssRules = styleSheets[ shtIndex ].cssRules;
       }
       catch ( error ) {
         cssRules = 0;
@@ -442,15 +465,15 @@
 
       while ( rlsIndex-- ) {
         if ( cssRules[ rlsIndex ].constructor === CSSMediaRule ) {
-          mediaqueries.push( window.matchMedia( cssRules[ rlsIndex ].media.mediaText ) );
+          mediaQueries.push( window.matchMedia( cssRules[ rlsIndex ].media.mediaText ) );
         }
       }
     }
 
-    // Filter mediaqueries by media property.
-    mediaqueries = unique( mediaqueries );
+    // Filter mediaQueries by media property.
+    mediaQueries = unique( mediaQueries );
 
-    return mediaqueries;
+    return mediaQueries;
   }
 
   /**
@@ -518,14 +541,16 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
-   * @param  {Array} mediaqueries
-   *         An array of MediaQueryList. Listeners will be attached to this.
    */
-  function handleMediaQueries( riccio, mediaqueries ) {
-    var qrsIndex = mediaqueries.length;
+  function handleMediaQueries( riccio ) {
+    if ( !riccio.options.mediaQueries ) {
+      return;
+    }
+
+    var qrsIndex = riccio.options.mediaQueries.length;
 
     while( qrsIndex-- ) {
-      mediaqueries[ qrsIndex ].addListener( callToInit );
+      riccio.options.mediaQueries[ qrsIndex ].addListener( callToInit );
     }
 
     function callToInit() {
