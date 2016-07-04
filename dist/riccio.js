@@ -3,6 +3,13 @@
  * Adaptive grid view with expanding info box.
  */
 
+ /*
+ TODO - Check if perRow is set in options, otherwise get it from the CSS. This
+   should work similar to mediaQueries option.
+ TODO - Make media queries calculation a class and require it. This should be a
+   better approach.
+  */
+
 ( function() {
 
   'use strict';
@@ -24,7 +31,7 @@
    * @return {object|Null}
    *         A new Riccio object
    */
-  window.Riccio = function( element, options ) {
+  function Riccio( element, options ) {
 
     if ( element.nodeType !== Node.ELEMENT_NODE ) {
       if ( console ) {
@@ -42,8 +49,8 @@
       mediaQueries: true
     };
 
-    if ( arguments[ 1 ] && typeof arguments === 'object' ) {
-      this.options = extendDefaults( defaults, arguments[ 1 ] );
+    if ( options && typeof options === 'object' ) {
+      this.options = extendDefaults( defaults, options );
     }
 
     this.options.perRow = getPerRow( this.element );
@@ -53,7 +60,7 @@
 
     if ( itemStore.length !== popStore.length ) {
       if ( console ) {
-        console.error( 'Riccio: items number and pops number doesn\'t match.');
+        console.error( 'Riccio: items number and pops number doesn\'t match.' );
       }
       return;
     }
@@ -73,7 +80,7 @@
     }
 
     handleMediaQueries( this );
-  };
+  }
 
 
   // Public methods
@@ -82,6 +89,8 @@
   /**
    * Initialize a Riccio object. This function is called when a new Riccio
    * object is instantiate, or when a breakpoint is triggered.
+   *
+   * @return {void}
    */
   Riccio.prototype.init = function() {
     // Add Riccio class.
@@ -200,6 +209,7 @@
    *
    * @param {String} index
    *        The index of the popStore corresponding to the element to open.
+   * @return {void}
    */
   Riccio.prototype.toggle = function( index ) {
 
@@ -327,6 +337,7 @@
    *         The item element to which add or remove class.
    * @param  {prev} prev
    *         The previous pop or item element to which remove active class.
+   * @return {void}
    */
   function toggleItem( item, prev ) {
     if ( item.classList.contains( 'riccio__item--active' ) ) {
@@ -348,6 +359,7 @@
    *         The pop element to which add or remove class.
    * @param  {prev} prev
    *         The previous pop element to which remove active class.
+   * @return {void}
    */
   function togglePop( pop, prev ) {
     if ( pop.classList.contains( 'riccio__pop--active' ) ) {
@@ -369,6 +381,7 @@
    *         The row to check if should be active or not.
    * @param  {Node} prev
    *         The previous element to which remove active class.
+   * @return {void}
    */
   function toggleRow( row, prev ) {
     var active = row.querySelector( '.riccio__pop--active' );
@@ -530,6 +543,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listener.
+   * @return {void}
    */
   function handleClick( riccio ) {
     riccio.element.addEventListener( 'click', function( event ) {
@@ -547,6 +561,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
+   * @return {void}
    */
   function handleMediaQueries( riccio ) {
     if ( !riccio.options.mediaQueries ) {
@@ -568,6 +583,9 @@
       }
     }
   }
+
+  // Expose Riccio to the global object.
+  window.Riccio = Riccio;
 
 } () );
 
