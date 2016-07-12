@@ -68,7 +68,7 @@
         "keyword-spacing": "off",
         "linebreak-style": [
             "error",
-            "windows"
+            "unix"
         ],
         "lines-around-comment": "off",
         "max-depth": "error",
