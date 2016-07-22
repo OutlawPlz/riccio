@@ -4,10 +4,11 @@
  */
 
  /*
- TODO - Check if perRow is set in options, otherwise get it from the CSS. This
-   should work similar to mediaQueries option.
- TODO - Make media queries calculation a class and require it. This should be a
-   better approach.
+ TODO - Implements UMD.
+ TODO - Add appendItems and prependItems methods.
+ TODO - Init with HTML.
+ TODO - Try to remove itemStore and popStore.
+ TODO - Implements destroy method.
   */
 
 ( function() {
@@ -45,7 +46,7 @@
     var defaults = {
       itemSelector: '',
       popSelector: '',
-      perRow: 3,
+      perRow: true,
       mediaQueries: true
     };
 
@@ -53,7 +54,9 @@
       this.options = extendDefaults( defaults, options );
     }
 
-    this.options.perRow = getPerRow( this.element );
+    if ( this.options.perRow && typeof this.options.perRow === 'boolean' ) {
+      this.options.perRow = getPerRow( this.element );
+    }
 
     var itemStore = this.element.querySelectorAll( this.options.itemSelector ),
         popStore = this.element.querySelectorAll( this.options.popSelector );
@@ -93,7 +96,7 @@
    * @return {void}
    */
   Riccio.prototype.init = function() {
-    // Add Riccio class.
+    // Add Riccio CSS class.
     this.element.classList.add( 'riccio' );
 
     var fragment = document.createDocumentFragment(),
@@ -133,8 +136,8 @@
   };
 
   /**
-   * Takes items and pops in this.element and appends them to the given node.
-   * The function doesn't check if there are enough rows, is up to you provide
+   * Takes items and pops and appends them to the given fragment.
+   * The function doesn't check if there are enough rows, it's up to you provide
    * the correct number of rows.
    *
    * @param  {Node} fragment
@@ -170,7 +173,7 @@
   };
 
   /**
-   * Return a document fragment with the rigth number of pops and items rows.
+   * Return the given fragment with the rigth number of pops and items rows.
    *
    * @param  {Node} fragment
    *         The element to which append rows.
@@ -262,7 +265,7 @@
         perRow = computedStyle.getPropertyValue( 'content' );
 
     if ( perRow === 'none' ) {
-      return 3;
+      return 1;
     }
     else {
       return parseInt( perRow.slice( 1, -1 ), 10 );

@@ -1,4 +1,7 @@
-( function() {
+( function( Riccio ) {
+
+  'use strict';
+
   var element = document.querySelector( '.album-view' );
 
   var riccio = new Riccio( element, {
@@ -12,4 +15,4 @@
   } );
 
   console.log( riccio );
-} )();
+} ( window.Riccio ) );
