@@ -17,6 +17,7 @@ Start using Riccio in three steps.
 ```html
 <script src="/path/to/riccio.min.js"></script>
 ```
+
 2. Set your grid layout in CSS. Using the `::before` selector you can set the
 number of items to print in a row. Change the layout using the media queries.
 ```css
@@ -33,6 +34,7 @@ number of items to print in a row. Change the layout using the media queries.
   }
 }
 ```
+
 3. Initialize Riccio in a custom script.
 ```js
 var element = document.querySelector( '.album-view' );
@@ -129,7 +131,7 @@ riccio.init();
 Return the number of rows you have and the number of rows you need to wrap the
 items. Ad other functions it count an intem row and the relative pop row as a
 single element. So if you need two rows, it means that you need two item rows
-and tow pop rows.
+and two pop rows.
 
 ```js
 // Get the number of roww you have and the number of row you need.
@@ -164,5 +166,13 @@ Open or close the element corresponding to the given index.
 ```js
 riccio.toggle( index );
 ```
+
+### appendItems( array )
+
+...
+
+### prependItems( array )
+
+...
 
 [de0e5714]: https://github.com/OutlawPlz "Download"

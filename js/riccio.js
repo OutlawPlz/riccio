@@ -7,7 +7,7 @@
  TODO - Implements UMD.
  TODO - Add appendItems and prependItems methods.
  TODO - Init with HTML.
- TODO - Try to remove itemStore and popStore.
+ TODO - Remove itemStore and popStore.
  TODO - Implements destroy method.
   */
 
@@ -29,7 +29,7 @@
    *         The node on which Riccio will act.
    * @param  {Object} options
    *         An object containing Riccio options.
-   * @return {object|Null}
+   * @return {object|undefined}
    *         A new Riccio object
    */
   function Riccio( element, options ) {
@@ -93,9 +93,10 @@
    * Initialize a Riccio object. This function is called when a new Riccio
    * object is instantiate, or when a breakpoint is triggered.
    *
-   * @return {void}
+   * @return {undefined}
    */
   Riccio.prototype.init = function() {
+
     // Add Riccio CSS class.
     this.element.classList.add( 'riccio' );
 
@@ -212,7 +213,7 @@
    *
    * @param {String} index
    *        The index of the popStore corresponding to the element to open.
-   * @return {void}
+   * @return {undefined}
    */
   Riccio.prototype.toggle = function( index ) {
 
@@ -340,7 +341,7 @@
    *         The item element to which add or remove class.
    * @param  {prev} prev
    *         The previous pop or item element to which remove active class.
-   * @return {void}
+   * @return {undefined}
    */
   function toggleItem( item, prev ) {
     if ( item.classList.contains( 'riccio__item--active' ) ) {
@@ -362,7 +363,7 @@
    *         The pop element to which add or remove class.
    * @param  {prev} prev
    *         The previous pop element to which remove active class.
-   * @return {void}
+   * @return {undefined}
    */
   function togglePop( pop, prev ) {
     if ( pop.classList.contains( 'riccio__pop--active' ) ) {
@@ -384,7 +385,7 @@
    *         The row to check if should be active or not.
    * @param  {Node} prev
    *         The previous element to which remove active class.
-   * @return {void}
+   * @return {undefined}
    */
   function toggleRow( row, prev ) {
     var active = row.querySelector( '.riccio__pop--active' );
@@ -546,7 +547,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listener.
-   * @return {void}
+   * @return {undefined}
    */
   function handleClick( riccio ) {
     riccio.element.addEventListener( 'click', function( event ) {
@@ -564,7 +565,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
-   * @return {void}
+   * @return {undefined}
    */
   function handleMediaQueries( riccio ) {
     if ( !riccio.options.mediaQueries ) {
