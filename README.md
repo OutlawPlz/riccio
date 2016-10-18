@@ -11,39 +11,39 @@ Start using Riccio in three steps.
 
 1. Download latest Riccio package from [Github][de0e5714]. Add
 `dist/riccio.min.js` and `dist/riccio.min.css` to your web page.
-```html
-<link href="/path/to/riccio.min.css" rel="stylesheet" media="screen">
-```
-```html
-<script src="/path/to/riccio.min.js"></script>
-```
+  ```html
+  <link href="/path/to/riccio.min.css" rel="stylesheet" media="screen">
+  ```
+  ```html
+  <script src="/path/to/riccio.min.js"></script>
+  ```
 
 2. Set your grid layout in CSS. Using the `::before` selector you can set the
 number of items to print in a row. Change the layout using the media queries.
-```css
-@media (max-width: 560px) {
-  .album-view::before {
-    content: '2';
+   ```css
+  @media (max-width: 560px) {
+    .album-view::before {
+      content: '2';
+    }
   }
-}
-```
-```css
-@media (min-width: 561px) {
-  .album-view::before {
-    content: '5';
+  ```
+  ```css
+  @media (min-width: 561px) {
+    .album-view::before {
+      content: '5';
+    }
   }
-}
-```
+  ```
 
 3. Initialize Riccio in a custom script.
-```js
-var element = document.querySelector( '.album-view' );
-// Initialize Riccio.
-var riccio = new Riccio( element, {
-  itemSelector: '.album',
-  popSelector: '.album__track-list',
-} );
-```
+  ```js
+  var element = document.querySelector( '.album-view' );
+  // Initialize Riccio.
+  var riccio = new Riccio( element, {
+    itemSelector: '.album',
+    popSelector: '.album__track-list',
+  } );
+  ```
 
 That's it. You’re all set to start using Riccio.
 
