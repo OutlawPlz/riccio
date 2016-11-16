@@ -6,7 +6,6 @@
  /*
  TODO - Implements UMD.
  TODO - Add appendItems and prependItems methods.
- TODO - Init with HTML.
  TODO - Remove itemStore and popStore.
  TODO - Implements destroy method.
   */
@@ -16,7 +15,8 @@
   'use strict';
 
   var console = window.console,
-      mediaQueries = [];
+      mediaQueries = [],
+      riccioStore = [];
 
 
   // Constructor
@@ -25,10 +25,11 @@
   /**
    * Instantiate a new Riccio object.
    *
-   * @param  {Node} element
+   * @param  {Element} element
    *         The node on which Riccio will act.
    * @param  {Object} options
    *         An object containing Riccio options.
+   *
    * @return {object|undefined}
    *         A new Riccio object
    */
@@ -71,8 +72,10 @@
     this.itemStore = itemStore;
     this.popStore = popStore;
 
+    // Init Riccio.
     this.init();
 
+    // Add events.
     handleClick( this );
 
     if ( !mediaQueries.length ) {
@@ -82,7 +85,11 @@
       this.options.mediaQueries = mediaQueries;
     }
 
+    // Add events.
     handleMediaQueries( this );
+
+    // Add current object to the store.
+    riccioStore.push( this );
   }
 
 
@@ -141,9 +148,10 @@
    * The function doesn't check if there are enough rows, it's up to you provide
    * the correct number of rows.
    *
-   * @param  {Node} fragment
+   * @param  {Element} fragment
    *         The element to which append items and pops.
-   * @return {Node}
+   *
+   * @return {Element}
    *         The given element with items and pops appended.
    */
   Riccio.prototype.setItems = function( fragment ) {
@@ -155,7 +163,7 @@
         r = 0; // Rows
 
     while ( i < itmIndex ) {
-      this.itemStore[ i ].setAttribute( 'data-riccio', i );
+      this.itemStore[ i ].setAttribute( 'data-riccio-index', i );
       this.itemStore[ i ].classList.add( 'riccio__item' );
       this.popStore[ i ].classList.add( 'riccio__pop' );
 
@@ -176,9 +184,10 @@
   /**
    * Return the given fragment with the rigth number of pops and items rows.
    *
-   * @param  {Node} fragment
+   * @param  {Element} fragment
    *         The element to which append rows.
-   * @return {Node}
+   *
+   * @return {Element}
    *         The given element with rows appended.
    */
   Riccio.prototype.setRows = function( fragment ) {
@@ -213,6 +222,7 @@
    *
    * @param {String} index
    *        The index of the popStore corresponding to the element to open.
+   *
    * @return {undefined}
    */
   Riccio.prototype.toggle = function( index ) {
@@ -227,6 +237,20 @@
   };
 
 
+  // Static methods
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Return an array containing all Riccio's instances.
+   *
+   * @return {Array}
+   *         An array containing all Riccio's instances.
+   */
+  Riccio.prototype.getStore = function() {
+    return riccioStore;
+  };
+
+
   // Private methods
   // ---------------------------------------------------------------------------
 
@@ -238,6 +262,7 @@
    *         An object representing the default options.
    * @param  {object} properties
    *         An object representing the user options.
+   *
    * @return {object}
    *         An updated object with merged options.
    */
@@ -256,8 +281,10 @@
   /**
    * Read the perRow option from CSS. If the option is not found return a
    * default value. The default value is 1.
+   *
    * @param  {Element} elem
    *         The element on which look for perRow option.
+   *
    * @return {Number}
    *         The number of elements to print in a row.
    */
@@ -281,11 +308,12 @@
    * So if you add two rows, it means that you are adding two item rows and two
    * pop rows.
    *
-   * @param  {Node} frag
+   * @param  {Element} frag
    *         The element to which add the rows.
    * @param  {Number} num
    *         The number of rows to add.
-   * @return {Node}
+   *
+   * @return {Element}
    *         The given element with the given number of rows.
    */
   function addRows( frag, num ) {
@@ -316,11 +344,12 @@
    * This function doesn't check if the rows exist. It will remove the last
    * child of the given element.
    *
-   * @param  {Node} frag
+   * @param  {Element} frag
    *         The element from which remove rows.
    * @param  {Number} num
    *         The number of rows to remove.
-   * @return {Node}
+   *
+   * @return {Element}
    *         The element without the given number of rows.
    */
   function removeRows( frag, num ) {
@@ -337,10 +366,11 @@
    * Takes an item element and adds or removes active class, if there is
    * a previous element removes the active class from it.
    *
-   * @param  {Node} item
+   * @param  {Element} item
    *         The item element to which add or remove class.
-   * @param  {prev} prev
+   * @param  {Element} prev
    *         The previous pop or item element to which remove active class.
+   *
    * @return {undefined}
    */
   function toggleItem( item, prev ) {
@@ -359,10 +389,11 @@
    * Takes a pop element and adds or removes active class, if there is
    * a previous element removes the active class from it.
    *
-   * @param  {Node} pop
+   * @param  {Element} pop
    *         The pop element to which add or remove class.
    * @param  {prev} prev
    *         The previous pop element to which remove active class.
+   *
    * @return {undefined}
    */
   function togglePop( pop, prev ) {
@@ -381,10 +412,11 @@
    * Check if a row should be active or not. If active adds a CSS class,
    * otherwise removes it.
    *
-   * @param  {Node} row
+   * @param  {Element} row
    *         The row to check if should be active or not.
-   * @param  {Node} prev
+   * @param  {Element} prev
    *         The previous element to which remove active class.
+   *
    * @return {undefined}
    */
   function toggleRow( row, prev ) {
@@ -405,24 +437,25 @@
   }
 
   /**
-   * Loops over the given element's parents looking for data-riccio attribute.
-   * When meet the ending node it stops.
+   * Loops over the given element's parents looking for data-riccio-index
+   * attribute. When meet the ending node it stops.
    *
-   * @param  {Node} start
+   * @param  {Element} start
    *         The starting element.
-   * @param  {Node} end
+   * @param  {Element} end
    *         The ending element.
+   *
    * @return {String|Boolean}
-   *         The data-riccio value found. If not found return false.
+   *         The data-riccio-index value found. If not found return false.
    */
   function getIndex( start, end ) {
     var index = false;
 
     while ( start !== end ) {
-      if ( start.hasAttribute( 'data-riccio' ) ) {
-        return start.getAttribute( 'data-riccio' );
+      if ( start.hasAttribute( 'data-riccio-index' ) ) {
+        return start.getAttribute( 'data-riccio-index' );
       }
-      start = start.parentElement;
+      start = start.parentNode;
     }
 
     return index;
@@ -433,6 +466,7 @@
    *
    * @param  {Array} mediaQueriesString
    *         The array of strings representing mediaQueries.
+   *
    * @return {Array}
    *         The array of MediaQueryList.
    */
@@ -456,7 +490,8 @@
    * @param  {Boolean|Array} mediaQueriesOption
    *         A boolean indicating if calculate mediaQueries or not, or an array
    *         of strings representing mediaQueries.
-   * @return {false|Array}
+   *
+   * @return {Boolean|Array}
    *         False or an array of MediaQueryList
    */
   function getMediaQueries( mediaQueriesOption ) {
@@ -504,6 +539,7 @@
    *
    * @param  {Array} array
    *         The media queries array.
+   *
    * @return {Array}
    *         An array of media queries without duplicates.
    */
@@ -527,8 +563,9 @@
    * Check the sign of the given number, and return -1 if negative, 1 if
    * positive and 0 if zero.
    *
-   * @param  {number} num
+   * @param  {Number} num
    *         The number to check.
+   *
    * @return {Number}
    *         A number indicating the sign of the given number. -1
    *         if negative, 1 if positive and 0 if zero.
@@ -547,6 +584,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listener.
+   *
    * @return {undefined}
    */
   function handleClick( riccio ) {
@@ -565,6 +603,7 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listeners.
+   *
    * @return {undefined}
    */
   function handleMediaQueries( riccio ) {
@@ -590,5 +629,12 @@
 
   // Expose Riccio to the global object.
   window.Riccio = Riccio;
+
+  // Init via HTML.
+  var elements = document.querySelectorAll( '[data-riccio]' );
+
+  for ( var e = 0; e < elements.length; ++e ) {
+    new Riccio( elements[ e ], JSON.parse( elements[ e ].getAttribute( 'data-riccio' ) ) );
+  }
 
 } () );

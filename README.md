@@ -47,6 +47,8 @@ number of items to print in a row. Change the layout using the media queries.
 
 That's it. You’re all set to start using Riccio.
 
+  [de0e5714]: https://github.com/OutlawPlz "Download"
+
 ## Options
 
 Riccio accepts an object of options. `itemSelector` and `popSelector` are
@@ -129,7 +131,7 @@ riccio.init();
 ### needs()
 
 Return the number of rows you have and the number of rows you need to wrap the
-items. Ad other functions it count an intem row and the relative pop row as a
+items. As other functions, it counts an item row and the relative pop row as a
 single element. So if you need two rows, it means that you need two item rows
 and two pop rows.
 
@@ -142,7 +144,7 @@ riccio.needs();
 
 Takes items and pops and appends them to the given fragment. The
 function doesn't check if there are enough rows, it's up to you provide the
-correct number of rows.
+correct number of rows. Check setRows() function.
 
 ```js
 // Appends pop and item element to the relative rows.
@@ -174,5 +176,3 @@ riccio.toggle( index );
 ### prependItems( array )
 
 ...
-
-[de0e5714]: https://github.com/OutlawPlz "Download"

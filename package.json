@@ -2,15 +2,23 @@
   "name": "riccio",
   "version": "1.0.6",
   "description": "Adaptive grid view with expanding info box.",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "keywords": [
+    "grid",
+    "adaptive",
+    "view",
+    "horizontal"
+  ],
+  "main": "dist/riccio.js",
+  "style": "dist/riccio.css",
   "author": "OutlawPlz",
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OutlawPlz/riccio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OutlawPlz/riccio/issues"
+  },
   "devDependencies": {
     "breakpoint-sass": "^2.7.0",
     "gulp": "^3.9.1",

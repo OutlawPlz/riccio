@@ -1,4 +1,4 @@
-( function( Riccio ) {
+( function() {
 
   'use strict';
 
@@ -14,5 +14,6 @@
     ]
   } );
 
-  console.log( riccio );
-} ( window.Riccio ) );
+  console.log( Riccio.prototype.getStore() );
+
+} () );
