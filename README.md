@@ -12,10 +12,10 @@ Start using Riccio in three steps.
 1. Download latest Riccio package from [Github][de0e5714]. Add
 `dist/riccio.min.js` and `dist/riccio.min.css` to your web page.
   ```html
-  <link href="/path/to/riccio.min.css" rel="stylesheet" media="screen">
+  <link href="/path/to/riccio/dist/riccio.min.css" rel="stylesheet" media="screen">
   ```
   ```html
-  <script src="/path/to/riccio.min.js"></script>
+  <script src="/path/to/riccio/dist/riccio.min.js"></script>
   ```
 
 2. Set your grid layout in CSS. Using the `::before` selector you can set the
@@ -26,8 +26,7 @@ number of items to print in a row. Change the layout using the media queries.
       content: '2';
     }
   }
-  ```
-  ```css
+
   @media (min-width: 561px) {
     .album-view::before {
       content: '5';

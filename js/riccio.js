@@ -1,16 +1,27 @@
-/*!
- * Riccio - v1.0.6
- * Adaptive grid view with expanding info box.
- */
-
  /*
- TODO - Implements UMD.
- TODO - Add appendItems and prependItems methods.
- TODO - Remove itemStore and popStore.
- TODO - Implements destroy method.
+  * Riccio - Adaptive grid view whith expanding info box.
+  *
+  * TODO - [x] Implements UMD.
+  * TODO - [ ] Add appendItems and prependItems methods.
+  * TODO - [ ] Remove itemStore and popStore.
+  * TODO - [ ] Implements destroy method.
+  * TODO - [ ] Improve docs.
+  * TODO - [ ] Init via jQuery.
   */
 
-( function() {
+( function ( window, factory ) {
+
+  if ( typeof define === 'function' && define.amd ) {
+    define( [], factory );
+  }
+  else if ( typeof exports === 'object' ) {
+    module.exports = factory();
+  }
+  else {
+    window.Riccio = factory();
+  }
+
+} ( window, function () {
 
   'use strict';
 
@@ -33,7 +44,7 @@
    * @return {object|undefined}
    *         A new Riccio object
    */
-  function Riccio( element, options ) {
+  function Riccio ( element, options ) {
 
     if ( element.nodeType !== Node.ELEMENT_NODE ) {
       if ( console ) {
@@ -247,6 +258,7 @@
    *         An array containing all Riccio's instances.
    */
   Riccio.prototype.getStore = function() {
+
     return riccioStore;
   };
 
@@ -267,6 +279,7 @@
    *         An updated object with merged options.
    */
   function extendDefaults( source, properties ) {
+
     var property;
 
     for ( property in properties ) {
@@ -289,6 +302,7 @@
    *         The number of elements to print in a row.
    */
   function getPerRow( elem ) {
+
     var computedStyle = getComputedStyle( elem, ':before' ),
         perRow = computedStyle.getPropertyValue( 'content' );
 
@@ -317,6 +331,7 @@
    *         The given element with the given number of rows.
    */
   function addRows( frag, num ) {
+
     var item,
         pop;
 
@@ -353,6 +368,7 @@
    *         The element without the given number of rows.
    */
   function removeRows( frag, num ) {
+
     num *= 2;
 
     while ( num-- ) {
@@ -374,6 +390,7 @@
    * @return {undefined}
    */
   function toggleItem( item, prev ) {
+
     if ( item.classList.contains( 'riccio__item--active' ) ) {
       item.classList.remove( 'riccio__item--active' );
     }
@@ -397,6 +414,7 @@
    * @return {undefined}
    */
   function togglePop( pop, prev ) {
+
     if ( pop.classList.contains( 'riccio__pop--active' ) ) {
       pop.classList.remove( 'riccio__pop--active' );
     }
@@ -420,6 +438,7 @@
    * @return {undefined}
    */
   function toggleRow( row, prev ) {
+
     var active = row.querySelector( '.riccio__pop--active' );
 
     if ( active ) {
@@ -449,6 +468,7 @@
    *         The data-riccio-index value found. If not found return false.
    */
   function getIndex( start, end ) {
+
     var index = false;
 
     while ( start !== end ) {
@@ -471,6 +491,7 @@
    *         The array of MediaQueryList.
    */
   function toMediaQueries( mediaQueriesString ) {
+
     var qrsIndex = mediaQueriesString.length;
 
     while ( qrsIndex-- ) {
@@ -495,6 +516,7 @@
    *         False or an array of MediaQueryList
    */
   function getMediaQueries( mediaQueriesOption ) {
+
     if ( !mediaQueriesOption ) {
       return false;
     }
@@ -515,9 +537,9 @@
         cssRules = 0;
       }
       /*
-      When javascript and stylesheets are in files on the local drive
-      document.styleSheets[ index ].cssRules return null. This is why Riccio
-      doesn't react to media queries change.
+       When javascript and stylesheets are in files on the local drive
+       document.styleSheets[ index ].cssRules return null. This is why Riccio
+       doesn't react to media queries change.
        */
       rlsIndex = cssRules ? cssRules.length : 0;
 
@@ -544,6 +566,7 @@
    *         An array of media queries without duplicates.
    */
   function unique( array ) {
+
     var unique = {},
         distinct = [],
         index = array.length;
@@ -571,6 +594,7 @@
    *         if negative, 1 if positive and 0 if zero.
    */
   function sign( num ) {
+
     return num ? num < 0 ? -1 : 1 : 0;
   }
 
@@ -588,6 +612,7 @@
    * @return {undefined}
    */
   function handleClick( riccio ) {
+
     riccio.element.addEventListener( 'click', function( event ) {
       var index = getIndex( event.target, event.currentTarget );
 
@@ -607,6 +632,7 @@
    * @return {undefined}
    */
   function handleMediaQueries( riccio ) {
+
     if ( !riccio.options.mediaQueries ) {
       return;
     }
@@ -627,14 +653,18 @@
     }
   }
 
-  // Expose Riccio to the global object.
-  window.Riccio = Riccio;
+
+  // Expose & Init
+  // ---------------------------------------------------------------------------
 
   // Init via HTML.
   var elements = document.querySelectorAll( '[data-riccio]' );
 
-  for ( var e = 0; e < elements.length; ++e ) {
-    new Riccio( elements[ e ], JSON.parse( elements[ e ].getAttribute( 'data-riccio' ) ) );
+  for ( var i = 0; i < elements.length; ++i ) {
+    new Riccio( elements[ i ], JSON.parse( elements[ i ].getAttribute( 'data-riccio' ) ) );
   }
 
-} () );
+  // Expose Riccio to the global object.
+  return Riccio;
+
+} ) );
