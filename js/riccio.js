@@ -3,10 +3,8 @@
   *
   * TODO - [x] Implements UMD.
   * TODO - [ ] Add appendItems and prependItems methods.
-  * TODO - [ ] Remove itemStore and popStore.
   * TODO - [ ] Implements destroy method.
   * TODO - [ ] Improve docs.
-  * TODO - [ ] Init via jQuery.
   */
 
 ( function ( window, factory ) {
@@ -98,9 +96,6 @@
 
     // Add events.
     handleMediaQueries( this );
-
-    // Add current object to the store.
-    riccioStore.push( this );
   }
 
 
@@ -130,8 +125,11 @@
     if ( activePop ) {
       toggleRow( activePop.parentElement, prevRow );
     }
-  };
 
+    // Add current object to the store.
+    riccioStore.push( this );
+  };
+  
   /**
    * Return the number of rows you have and the number of rows you need to wrap
    * the items.
@@ -193,7 +191,7 @@
   };
 
   /**
-   * Return the given fragment with the rigth number of pops and items rows.
+   * Return the given fragment with the right number of pops and items rows.
    *
    * @param  {Element} fragment
    *         The element to which append rows.
@@ -252,14 +250,53 @@
   // ---------------------------------------------------------------------------
 
   /**
+   * Check if the given Riccio instance was initialized.
+   *
+   * @param  {Riccio} riccio
+   *         A Riccio instance to check.
+   * @return {Boolean}
+   *         True if the given Riccio instance was initialized, false otherwise.
+   */
+  Riccio.prototype.isInitialized = function ( riccio ) {
+
+    for ( var i = riccioStore.length, inStore; i--, inStore = riccioStore[ i ]; ) {
+      if ( riccio === inStore ) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  /**
    * Return an array containing all Riccio's instances.
    *
    * @return {Array}
    *         An array containing all Riccio's instances.
+   *
+   * @deprecated
    */
   Riccio.prototype.getStore = function() {
 
     return riccioStore;
+  };
+
+  /**
+   * Return the Riccio instance used by the given element.
+   *
+   * @param  {Element} element
+   *         The element used at Riccio creation.
+   * @return {Riccio|undefined}
+   *         The Riccio instance used by the given element. If none instance is
+   *         found, return undefined.
+   */
+  Riccio.prototype.getInstance = function ( element ) {
+
+    for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
+      if ( riccio.element === element ) {
+        return riccio;
+      }
+    }
   };
 
 
