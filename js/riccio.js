@@ -1,10 +1,5 @@
  /*
-  * Riccio - Adaptive grid view whith expanding info box.
-  *
-  * TODO - [x] Implements UMD.
-  * TODO - [ ] Add appendItems and prependItems methods.
-  * TODO - [ ] Implements destroy method.
-  * TODO - [ ] Improve docs.
+  * Riccio - Adaptive grid view with expanding info box.
   */
 
 ( function ( window, factory ) {
@@ -40,7 +35,7 @@
    *         An object containing Riccio options.
    *
    * @return {object|undefined}
-   *         A new Riccio object
+   *         A new Riccio object.
    */
   function Riccio ( element, options ) {
 
@@ -50,6 +45,7 @@
       }
       return;
     }
+
     this.element = element;
 
     // Default options.
@@ -83,19 +79,6 @@
 
     // Init Riccio.
     this.init();
-
-    // Add events.
-    handleClick( this );
-
-    if ( !mediaQueries.length ) {
-      this.options.mediaQueries = getMediaQueries( this.options.mediaQueries );
-    }
-    else {
-      this.options.mediaQueries = mediaQueries;
-    }
-
-    // Add events.
-    handleMediaQueries( this );
   }
 
 
@@ -103,31 +86,83 @@
   // ---------------------------------------------------------------------------
 
   /**
-   * Initialize a Riccio object. This function is called when a new Riccio
-   * object is instantiate, or when a breakpoint is triggered.
-   *
-   * @return {undefined}
+   * Initialize a Riccio object. It adds Riccio CSS classes and events.
    */
   Riccio.prototype.init = function() {
 
     // Add Riccio CSS class.
     this.element.classList.add( 'riccio' );
 
+    // If there are user defined media queries, set it to options. Otherwise
+    // call getMediaQueries().
+    if ( mediaQueries.length ) {
+      this.options.mediaQueries = mediaQueries;
+    }
+    else {
+      this.options.mediaQueries = getMediaQueries( this.options.mediaQueries );
+    }
+
+    // Add events.
+    this.element.addEventListener( 'click', clickHandler( this ) );
+    handleMediaQueries( this );
+
+    // Add current object to the store.
+    riccioStore.push( this );
+
+    // Build layout.
+    this.buildLayout();
+  };
+
+  /**
+   * Reset a Riccio instance to a pre-init state. It removes Riccio CSS classes
+   * and events.
+   */
+  // Riccio.prototype.destroy = function () {
+  //
+  //   // If not initialized do not destroy.
+  //   if ( !Riccio.prototype.isInitialized( this ) ) {
+  //     return;
+  //   }
+  //
+  //   // Remove CSS classes.
+  //   this.element.classList.remove( 'riccio' );
+  //
+  //   // TODO - Destroy Riccio layout.
+  //
+  //   // TODO - Remove events.
+  //
+  //   // Remove instance from the store.
+  //   for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
+  //     if ( riccio === this ) {
+  //       riccioStore.splice( i, 1 );
+  //     }
+  //   }
+  // };
+
+  /**
+   * Builds the Riccio layout. This function is called when a breakpoint is
+   * triggered.
+   *
+   * @return {undefined}
+   */
+  Riccio.prototype.buildLayout = function () {
+
     var fragment = document.createDocumentFragment(),
         activePop = this.element.querySelector( '.riccio__pop--active' ),
-        prevRow = this.element.querySelector( '.riccio__row-pop--active' );
+        prevRow = this.element.querySelector( '.riccio__row-pop--active' ),
+        info = needs( this.element, this.options.itemSelector, this.options.perRow );
 
-    fragment = this.setRows( fragment );
-    fragment = this.setItems( fragment );
+//    fragment = this.setRows( fragment );
+//  fragment = this.setItems( fragment );
+
+    fragment = setRows( this.element, info, fragment );
+    fragment = setItems( fragment, this.itemStore, this.popStore, this.options.perRow );
 
     this.element.appendChild( fragment );
 
     if ( activePop ) {
       toggleRow( activePop.parentElement, prevRow );
     }
-
-    // Add current object to the store.
-    riccioStore.push( this );
   };
   
   /**
@@ -141,6 +176,8 @@
    * @return {Object}
    *         An object containing the number of rows you have and the number of
    *         rows you need, keyed by "having" and "needed".
+   *
+   * @deprecated Integrated in buildLayout(). Will be removed in v2.0.0.
    */
   Riccio.prototype.needs = function() {
 
@@ -162,6 +199,8 @@
    *
    * @return {Element}
    *         The given element with items and pops appended.
+   *
+   * @deprecated Use buildLayout() instead. Will be removed in v2.0.0.
    */
   Riccio.prototype.setItems = function( fragment ) {
 
@@ -198,6 +237,8 @@
    *
    * @return {Element}
    *         The given element with rows appended.
+   *
+   * @deprecated Use buildLayout() instead. Will be removed in v2.0.0.
    */
   Riccio.prototype.setRows = function( fragment ) {
 
@@ -274,7 +315,7 @@
    * @return {Array}
    *         An array containing all Riccio's instances.
    *
-   * @deprecated
+   * @deprecated Will be removed in v2.0.0.
    */
   Riccio.prototype.getStore = function() {
 
@@ -302,6 +343,114 @@
 
   // Private methods
   // ---------------------------------------------------------------------------
+
+  /**
+   * Returns the number of row you have and the number of row you need to wrap
+   * the items.
+   *
+   * Ad other functions it counts an item row and the relative pop row as a
+   * single element. If you need two rows, it means you need two items rows and
+   * two pop rows.
+   *
+   * @param element
+   *   The element containing Riccio items.
+   * @param itemSelector
+   *   The CSS selector of items.
+   * @param perRow
+   *   The number of items to fin in a row.
+   *
+   * @return {{having: number, needed: number}}
+   *   An object containing the number of rows you have and the number row you
+   *   need, keyed by "having" and "needed".
+   */
+  function needs( element, itemSelector, perRow ) {
+
+    var itemsLenght = element.querySelectorAll( itemSelector ).length;
+
+    return {
+      having: element.querySelectorAll( '.riccio__row-item' ).length,
+      needed: Math.ceil( itemsLenght / perRow )
+    }
+  }
+
+  /**
+   * Return the given fragment with the right number of pops and items rows.
+   *
+   * @param element
+   *   The element containing Pop and Item elements.
+   * @param needs
+   *   The object returned by the needs() function.
+   * @param fragment
+   *   A document fragment.
+   *
+   * @return {Element}
+   *   The given fragment with rows appended.
+   */
+  function setRows( element, needs, fragment ) {
+
+    var difference = needs.needed - needs.having;
+
+    if ( needs.having ) {
+
+      var rows = element.querySelectorAll( '.riccio__row-item, .riccio__row-pop' ),
+          rowsLenght = rows.length;
+
+      for ( var i = 0; i < rowsLenght; i++ ) {
+        fragment.appendChild( rows[ i ] );
+      }
+    }
+
+    if ( difference ) {
+      if ( sign( difference ) === -1 ) {
+        difference *= -1; // Be positive.
+        fragment = removeRows( fragment, difference );
+      }
+      else {
+        fragment = addRows( fragment, difference );
+      }
+    }
+
+    return fragment;
+  }
+
+  /**
+   * Takes items and pops and appends them to the given fragment.
+   * The function doesn't check if there are enough rows, it's up to you provide
+   * the correct number of rows.
+   *
+   * @param fragment
+   * @param itemStore
+   * @param popStore
+   * @param perRow
+   * @return {*}
+   */
+  function setItems( fragment, itemStore, popStore, perRow ) {
+
+    var itemRows = fragment.querySelectorAll( '.riccio__row-item' ),
+        popRows = fragment.querySelectorAll( '.riccio__row-pop' ),
+        itemLength = itemStore.length,
+        i = 0,
+        r = 0;
+
+    while ( i < itemLength ) {
+      itemStore[ i ].setAttribute( 'data-riccio-index', i );
+      itemStore[ i ].classList.add( 'riccio__item' );
+      popStore[ i ].classList.add( 'riccio__pop' );
+
+      itemRows[ r ].appendChild( itemStore[ i ] );
+      popRows[ r ].appendChild( popStore[ i ] );
+
+      i++;
+
+      var rowFull = i % perRow;
+
+      if ( !rowFull ) {
+        r++;
+      }
+    }
+
+    return fragment;
+  }
 
   /**
    * Take an object, loop through its properties, and if it isn't an internal
@@ -609,7 +758,7 @@
         index = array.length;
 
     while ( index-- ) {
-      if ( typeof ( unique[ array[ index ].media ] ) == 'undefined' ) {
+      if ( typeof ( unique[ array[ index ].media ] ) === 'undefined' ) {
         distinct.push( array[ index ] );
       }
 
@@ -645,18 +794,17 @@
    *
    * @param  {Object} riccio
    *         The riccio object on which attach the event listener.
-   *
-   * @return {undefined}
    */
-  function handleClick( riccio ) {
+  function clickHandler( riccio ) {
 
-    riccio.element.addEventListener( 'click', function( event ) {
+    return function ( event ) {
+
       var index = getIndex( event.target, event.currentTarget );
 
       if ( index ) {
         riccio.toggle( index );
       }
-    } );
+    };
   }
 
   /**
@@ -685,7 +833,7 @@
 
       if ( riccio.options.perRow !== perRow ) {
         riccio.options.perRow = perRow;
-        riccio.init();
+        riccio.buildLayout();
       }
     }
   }
@@ -697,8 +845,8 @@
   // Init via HTML.
   var elements = document.querySelectorAll( '[data-riccio]' );
 
-  for ( var i = 0; i < elements.length; ++i ) {
-    new Riccio( elements[ i ], JSON.parse( elements[ i ].getAttribute( 'data-riccio' ) ) );
+  for ( var i = elements.length, element; i--, element = elements[ i ]; ) {
+    new Riccio( element, JSON.parse( element.getAttribute( 'data-riccio' ) ) );
   }
 
   // Expose Riccio to the global object.
