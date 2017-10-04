@@ -20,6 +20,7 @@
 
   var console = window.console,
       mediaQueries = [],
+      mediaQueryStore = {},
       riccioStore = [];
 
 
@@ -156,9 +157,6 @@
         activePop = this.element.querySelector( '.riccio__pop--active' ),
         prevRow = this.element.querySelector( '.riccio__row-pop--active' ),
         info = needs( this.element, this.options.itemSelector, this.options.perRow );
-
-//    fragment = this.setRows( fragment );
-//  fragment = this.setItems( fragment );
 
     fragment = setRows( this.element, info, fragment );
     fragment = setItems( fragment, this.itemStore, this.popStore, this.options.perRow );
@@ -599,7 +597,7 @@
    *
    * @param  {Element} pop
    *         The pop element to which add or remove class.
-   * @param  {prev} prev
+   * @param  {Element} prev
    *         The previous pop element to which remove active class.
    *
    * @return {undefined}
@@ -745,6 +743,35 @@
     mediaQueries = unique( mediaQueries );
 
     return mediaQueries;
+  }
+
+  /**
+   * Try to get media-queries from CSS.
+   */
+  function getMediaQueriesFromCss () {
+
+    // Loop over style-sheets.
+    for ( var i = document.styleSheets.length, styleSheet; i--, styleSheet = document.styleSheets[ i ]; ) {
+
+      // Try to access the style-sheet css rules. If can't access, skip it
+      // preventing security errors.
+      // @see https://developer.mozilla.org/it/docs/Web/API/CSSStyleSheet#Notes
+      try {
+        styleSheet.cssRules.length;
+      }
+      catch ( error ) {
+        continue;
+      }
+
+      // Loop over css rules.
+      for ( var j = styleSheet.cssRules.length, cssRule; j--, cssRule = styleSheet.cssRules[ j ]; ) {
+        // Look for media rules that are not listed in mediaQueryStore array.
+        if ( cssRule.constructor === CSSMediaRule && !mediaQueryStore[ cssRule.media.mediaText ] ) {
+          // Add mediaQueryList object to mediaQueryStore array.
+          mediaQueryStore[ cssRule.media.mediaText ] = cssRule.media;
+        }
+      }
+    }
   }
 
   /**
