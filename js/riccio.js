@@ -104,7 +104,12 @@
 
     // Add events.
     this.element.addEventListener( 'click', clickHandler( this ) );
-    handleMediaQueries( this );
+
+    for ( var i = this.options.mediaQueries.length, mediaQuery; i--, mediaQuery = this.options.mediaQueries[ i ]; ) {
+      mediaQuery.addListener( mediaQueryHandler( this ) );
+    }
+
+    // handleMediaQueries( this );
 
     // Add current object to the store.
     riccioStore.push( this );
@@ -808,29 +813,27 @@
   }
 
   /**
-   * Attach an event listener to the given media queries. When a query is
-   * triggered it check if perRow has changed, if so re-init Riccio.
+   * When a MediaQuery is triggered it checks if perRow option has changed, if
+   * so re-build the layout.
    *
-   * @param  {Object} riccio
-   *         The riccio object on which attach the event listeners.
-   *
-   * @return {undefined}
+   * @param {Riccio} riccio
+   *   The Riccio instance on which the listener is attached.
+   * @return {Function}
+   *   The function that manage layout re-building.
    */
-  function handleMediaQueries( riccio ) {
+  function mediaQueryHandler( riccio ) {
 
-    if ( !riccio.options.mediaQueries ) {
-      return;
-    }
+    return function ( event ) {
 
-    var qrsIndex = riccio.options.mediaQueries.length;
+      // If the media query is not matched, do nothing.
+      if ( !event.matches ) {
+        return;
+      }
 
-    while( qrsIndex-- ) {
-      riccio.options.mediaQueries[ qrsIndex ].addListener( callToInit );
-    }
-
-    function callToInit() {
+      // Calculate perRow option.
       var perRow = getPerRow( riccio.element );
 
+      // If perRow is changed, re-build layout and set new perRow into options.
       if ( riccio.options.perRow !== perRow ) {
         riccio.options.perRow = perRow;
         riccio.buildLayout();
