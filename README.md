@@ -13,14 +13,12 @@ Start using Riccio in three steps.
 `dist/riccio.min.js` and `dist/riccio.min.css` to your web page.
   ```html
   <link href="/path/to/riccio/dist/riccio.min.css" rel="stylesheet" media="screen">
-  ```
-  ```html
   <script src="/path/to/riccio/dist/riccio.min.js"></script>
   ```
 
 2. Set your grid layout in CSS. Using the `::before` selector you can set the
 number of items to print in a row. Change the layout using the media queries.
-   ```css
+  ```css
   @media (max-width: 560px) {
     .album-view::before {
       content: '2';
@@ -127,7 +125,20 @@ instantiate, or when a breakpoint is triggered.
 riccio.init();
 ```
 
-### needs()
+### buildLayout()
+
+Builds the Riccio layout. This function is called when a Riccio instance is
+initialized and when a breakpoint is triggered.
+
+```js
+// Build the layout.
+riccio.buildLayout();
+```
+
+### ~~needs()~~
+
+**DEPRECATED** - Will be removed in v2.0.0, `buildLayout()` function take cares
+of building your layout.
 
 Return the number of rows you have and the number of rows you need to wrap the
 items. As other functions, it counts an item row and the relative pop row as a
@@ -135,11 +146,14 @@ single element. So if you need two rows, it means that you need two item rows
 and two pop rows.
 
 ```js
-// Get the number of roww you have and the number of row you need.
+// Get the number of row you have and the number of row you need.
 riccio.needs();
 ```
 
-### setItems( fragment )
+### ~~setItems( fragment )~~
+
+**DEPRECATED** - Will be removed in v2.0.0, `buildLayout()` function take cares
+of building your layout.
 
 Takes items and pops and appends them to the given fragment. The
 function doesn't check if there are enough rows, it's up to you provide the
@@ -150,7 +164,10 @@ correct number of rows. Check setRows() function.
 riccio.setItems( fragment )
 ```
 
-### setRows( fragment )
+### ~~setRows( fragment )~~
+
+**DEPRECATED** - Will be removed in v2.0.0, `buildLayout()` function take cares
+of building your layout.
 
 Ask to needs() function how many pop rows and item rows we have. Then append the
 rigth number of rows to the given fragment.
@@ -167,11 +184,3 @@ Open or close the element corresponding to the given index.
 ```js
 riccio.toggle( index );
 ```
-
-### appendItems( array )
-
-...
-
-### prependItems( array )
-
-...
