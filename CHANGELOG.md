@@ -10,8 +10,8 @@ Log of unreleased changes.
 
 - UMD support.
 - Added `getInstance()`, `isInitialized()` functions.
-- Added `buildLayout()` function. Called on init and when a media query is
-triggered.
+- Added `buildLayout()` function. This function is called on init and when a
+media query is triggered.
 
 ### Changed
 
@@ -24,3 +24,8 @@ triggered.
 `getInstance()`.
 - Deprecated `Riccio.prototype.needs()`, `Riccio.prototype.setRows()` and
 `Riccio.prototype.setItems()` in favor of `Riccio.prototype.buildLayout()`.
+
+### Removed
+
+- Removed private functions `toMediaQueries()`, `handleMediaQueries()`,
+`unique()`.

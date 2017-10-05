@@ -19,8 +19,7 @@
   'use strict';
 
   var console = window.console,
-      mediaQueries = [],
-      mediaQueryStore = {},
+      mediaQueriesStore = {},
       riccioStore = [];
 
 
@@ -94,23 +93,17 @@
     // Add Riccio CSS class.
     this.element.classList.add( 'riccio' );
 
-    // If there are user defined media queries, set it to options. Otherwise
-    // call getMediaQueries().
-    if ( mediaQueries.length ) {
-      this.options.mediaQueries = mediaQueries;
-    }
-    else {
-      this.options.mediaQueries = getMediaQueries( this.options.mediaQueries );
+    // If mediaQueries is true or an array, call getMediaQueries.
+    if ( this.options.mediaQueries ) {
+      getMediaQueries( this.options.mediaQueries );
     }
 
     // Add events.
     this.element.addEventListener( 'click', clickHandler( this ) );
 
-    for ( var i = this.options.mediaQueries.length, mediaQuery; i--, mediaQuery = this.options.mediaQueries[ i ]; ) {
-      mediaQuery.addListener( mediaQueryHandler( this ) );
+    for ( var mediaQuery in mediaQueriesStore ) {
+      mediaQueriesStore[ mediaQuery ].addListener( mediaQueryHandler );
     }
-
-    // handleMediaQueries( this );
 
     // Add current object to the store.
     riccioStore.push( this );
@@ -134,7 +127,6 @@
   //   this.element.classList.remove( 'riccio' );
   //
   //   // TODO - Destroy Riccio layout.
-  //
   //   // TODO - Remove events.
   //
   //   // Remove instance from the store.
@@ -671,78 +663,33 @@
   }
 
   /**
-   * Takes an array of strings and return an array of MediaQueryList.
+   * If mediaQueriesStore is empty, call getMediaQueriesFromCss().
+   * If mediaQueriesOption is an array, convert string into a MediaQueryList
+   * object and add it to mediaQueriesStore. If mediaQueriesOption is true,
+   * do nothing.
    *
-   * @param  {Array} mediaQueriesString
-   *         The array of strings representing mediaQueries.
-   *
-   * @return {Array}
-   *         The array of MediaQueryList.
-   */
-  function toMediaQueries( mediaQueriesString ) {
-
-    var qrsIndex = mediaQueriesString.length;
-
-    while ( qrsIndex-- ) {
-      // Save in mediaQueries my MediaQueryList.
-      mediaQueries.push( window.matchMedia( mediaQueriesString[ qrsIndex ] ) );
-    }
-
-    return mediaQueries;
-  }
-
-  /**
-   * Takes the mediaQueries option. If the option is false the function returns
-   * false. If the option is an array, convert the array in array of
-   * MediaQueryList. Otherwise it try to get mediaQueries from the css and
-   * return an array of MediaQueryList.
-   *
-   * @param  {Boolean|Array} mediaQueriesOption
-   *         A boolean indicating if calculate mediaQueries or not, or an array
-   *         of strings representing mediaQueries.
-   *
-   * @return {Boolean|Array}
-   *         False or an array of MediaQueryList
+   * @param {Boolean|Array} mediaQueriesOption
+   *   A boolean indicating if calculate media-queries or not, or an array of
+   *   strings representing media-queries.
    */
   function getMediaQueries( mediaQueriesOption ) {
 
-    if ( !mediaQueriesOption ) {
-      return false;
+    // If mediaQueriesStore is empty, get media-queries from CSS. This way
+    // media-queries are calculated only once from CSS.
+    if ( !Object.keys( mediaQueriesStore ).length ) {
+      getMediaQueriesFromCss();
     }
-    else if ( Array.isArray( mediaQueriesOption ) ) {
-      return toMediaQueries( mediaQueriesOption );
-    }
 
-    var styleSheets = document.styleSheets,
-        shtIndex = styleSheets.length,
-        cssRules = 0,
-        rlsIndex = 0;
-
-    while ( shtIndex-- ) {
-      try {
-        cssRules = styleSheets[ shtIndex ].cssRules;
-      }
-      catch ( error ) {
-        cssRules = 0;
-      }
-      /*
-       When javascript and stylesheets are in files on the local drive
-       document.styleSheets[ index ].cssRules return null. This is why Riccio
-       doesn't react to media queries change.
-       */
-      rlsIndex = cssRules ? cssRules.length : 0;
-
-      while ( rlsIndex-- ) {
-        if ( cssRules[ rlsIndex ].constructor === CSSMediaRule ) {
-          mediaQueries.push( window.matchMedia( cssRules[ rlsIndex ].media.mediaText ) );
+    // If mediaQueriesOption is an array.
+    if ( mediaQueriesOption instanceof Array ) {
+      // Loop over the entries.
+      for ( var i = mediaQueriesOption.length, mediaQueryText; i--, mediaQueryText = mediaQueriesOption[ i ]; ) {
+        // And if the media-query is not in the mediaQueriesStore, add it.
+        if ( !mediaQueriesStore.hasOwnProperty( mediaQueryText ) ) {
+          mediaQueriesStore[ mediaQueryText ] = window.matchMedia( mediaQueryText );
         }
       }
     }
-
-    // Filter mediaQueries by media property.
-    mediaQueries = unique( mediaQueries );
-
-    return mediaQueries;
   }
 
   /**
@@ -753,8 +700,8 @@
     // Loop over style-sheets.
     for ( var i = document.styleSheets.length, styleSheet; i--, styleSheet = document.styleSheets[ i ]; ) {
 
-      // Try to access the style-sheet css rules. If can't access, skip it
-      // preventing security errors.
+      // Try to access the style-sheet css rules. If can't access, skip it to
+      // prevent security errors.
       // @see https://developer.mozilla.org/it/docs/Web/API/CSSStyleSheet#Notes
       try {
         styleSheet.cssRules.length;
@@ -765,39 +712,13 @@
 
       // Loop over css rules.
       for ( var j = styleSheet.cssRules.length, cssRule; j--, cssRule = styleSheet.cssRules[ j ]; ) {
-        // Look for media rules that are not listed in mediaQueryStore array.
-        if ( cssRule.constructor === CSSMediaRule && !mediaQueryStore[ cssRule.media.mediaText ] ) {
-          // Add mediaQueryList object to mediaQueryStore array.
-          mediaQueryStore[ cssRule.media.mediaText ] = cssRule.media;
+        // Look for media rules that are not listed in mediaQueriesStore array.
+        if ( cssRule.constructor === CSSMediaRule && !mediaQueriesStore[ cssRule.media.mediaText ] ) {
+          // Add mediaQueryList object to mediaQueriesStore array.
+          mediaQueriesStore[ cssRule.media.mediaText ] = window.matchMedia( cssRule.media );
         }
       }
     }
-  }
-
-  /**
-   * Loop over an array of media queries and return an array without duplicates.
-   *
-   * @param  {Array} array
-   *         The media queries array.
-   *
-   * @return {Array}
-   *         An array of media queries without duplicates.
-   */
-  function unique( array ) {
-
-    var unique = {},
-        distinct = [],
-        index = array.length;
-
-    while ( index-- ) {
-      if ( typeof ( unique[ array[ index ].media ] ) === 'undefined' ) {
-        distinct.push( array[ index ] );
-      }
-
-      unique[ array[ index ].media ] = 0;
-    }
-
-    return distinct;
   }
 
   /**
@@ -840,20 +761,22 @@
   }
 
   /**
-   * When a MediaQuery is triggered it checks if perRow option has changed, if
-   * so re-build the layout.
+   * When a MediaQuery is triggered it checks if perRow option has changed, then
+   * re-build layout if needed.
    *
-   * @param {Riccio} riccio
-   *   The Riccio instance on which the listener is attached.
-   * @return {Function}
-   *   The function that manage layout re-building.
+   * @param event
    */
-  function mediaQueryHandler( riccio ) {
+  function mediaQueryHandler( event ) {
 
-    return function ( event ) {
+    // If the media query is not matched, do nothing.
+    if ( !event.matches ) {
+      return;
+    }
 
-      // If the media query is not matched, do nothing.
-      if ( !event.matches ) {
+    // Loop over Riccio instances.
+    for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
+      // If riccio instance has mediaQueries set to false, do nothing.
+      if ( !riccio.options.mediaQueries ) {
         return;
       }
 
