@@ -4,12 +4,15 @@
 
 ( function ( window, factory ) {
 
+  // AMD
   if ( typeof define === 'function' && define.amd ) {
     define( [], factory );
   }
+  // CommonJS
   else if ( typeof exports === 'object' ) {
     module.exports = factory();
   }
+  // Browser global
   else {
     window.Riccio = factory();
   }
@@ -74,9 +77,6 @@
       return;
     }
 
-    this.itemStore = itemStore;
-    this.popStore = popStore;
-
     // Init Riccio.
     this.init();
   }
@@ -99,51 +99,63 @@
     }
 
     // Add events.
-    this.element.addEventListener( 'click', clickHandler( this ) );
+    document.body.addEventListener( 'click', clickHandler );
 
-    for ( var mediaQuery in mediaQueriesStore ) {
-      mediaQueriesStore[ mediaQuery ].addListener( mediaQueryHandler );
+    for ( var mediaQueryText in mediaQueriesStore ) {
+      mediaQueriesStore[ mediaQueryText ].addListener( mediaQueryHandler );
     }
 
-    // Add current object to the store.
-    riccioStore.push( this );
+    // Define itemStore and popStore. Will be populated in buildLayout().
+    this.itemStore = null;
+    this.popStore = null;
+
+    // Save original element and its parent to facilitate destroyLayout()
+    // method.
+    this.originalElement = this.element.cloneNode( true );
+    this.originalElementParent = this.element.parentNode;
 
     // Build layout.
     this.buildLayout();
+
+    // Add current object to the store.
+    riccioStore.push( this );
   };
 
   /**
-   * Reset a Riccio instance to a pre-init state. It removes Riccio CSS classes
-   * and events.
+   * Reset a Riccio instance to a pre-init state. It removes Riccio CSS classes,
+   * events and layout.
    */
-  // Riccio.prototype.destroy = function () {
-  //
-  //   // If not initialized do not destroy.
-  //   if ( !Riccio.prototype.isInitialized( this ) ) {
-  //     return;
-  //   }
-  //
-  //   // Remove CSS classes.
-  //   this.element.classList.remove( 'riccio' );
-  //
-  //   // TODO - Destroy Riccio layout.
-  //   // TODO - Remove events.
-  //
-  //   // Remove instance from the store.
-  //   for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
-  //     if ( riccio === this ) {
-  //       riccioStore.splice( i, 1 );
-  //     }
-  //   }
-  // };
+  /*
+  Riccio.prototype.destroy = function () {
+
+    // If not initialized do not destroy.
+    if ( !Riccio.prototype.isInitialized( this ) ) {
+      return;
+    }
+
+    // Remove CSS classes.
+    this.element.classList.remove( 'riccio' );
+
+    // Remove instance from the store.
+    for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
+      if ( riccio === this ) {
+        riccioStore.splice( i, 1 );
+      }
+    }
+  };
+  */
 
   /**
    * Builds the Riccio layout. This function is called when a breakpoint is
    * triggered.
-   *
-   * @return {undefined}
    */
   Riccio.prototype.buildLayout = function () {
+
+    // If empty, populate itemStore and popStore.
+    if ( !this.itemStore && !this.popStore ) {
+      this.itemStore = this.element.querySelectorAll( this.options.itemSelector );
+      this.popStore = this.element.querySelectorAll( this.options.popSelector );
+    }
 
     var fragment = document.createDocumentFragment(),
         activePop = this.element.querySelector( '.riccio__pop--active' ),
@@ -159,7 +171,28 @@
       toggleRow( activePop.parentElement, prevRow );
     }
   };
-  
+
+  /**
+   * Reset the layout in a state previous of buildLayout() method.
+   */
+  Riccio.prototype.destroyLayout = function() {
+
+    // Cloning the original element. The original should never be touched.
+    var clone = this.originalElement.cloneNode( true );
+
+    // Replace current layout with a clone of the original layout.
+    this.originalElementParent.replaceChild( clone, this.element );
+    // I have to replace Riccio.element with a clone of the original layout.
+    this.element = clone;
+
+    // Reset popStore and itemStore, so buildLayout() can recalculate them.
+    this.popStore = null;
+    this.itemStore = null;
+
+    // I don't have to remove CSS classes and attributes because they was added
+    // after saving the original layout.
+  }
+
   /**
    * Return the number of rows you have and the number of rows you need to wrap
    * the items.
@@ -745,19 +778,25 @@
    * Attach an event listener to the Riccio object. When user click on a element
    * the relative pop will open or close.
    *
-   * @param  {Object} riccio
-   *         The riccio object on which attach the event listener.
+   * @param event
    */
-  function clickHandler( riccio ) {
+  function clickHandler( event ) {
 
-    return function ( event ) {
+    // For each Riccio in riccioStore...
+    for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
+      // Check if I've clicked in a Riccio instance.
+      if ( !riccio.element.contains( event.target ) ) {
+        // I'm not in a Riccio instance...
+        continue;
+      }
 
-      var index = getIndex( event.target, event.currentTarget );
-
+      // Get the item I've clicked on.
+      var index = getIndex( event.target, riccio.element );
+      // Check if I've clicked in a item and toggle it.
       if ( index ) {
         riccio.toggle( index );
       }
-    };
+    }
   }
 
   /**

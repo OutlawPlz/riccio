@@ -14,6 +14,4 @@
     ]
   } );
 
-  console.log( Riccio.prototype.getStore() );
-
 } () );

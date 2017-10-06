@@ -135,6 +135,17 @@ initialized and when a breakpoint is triggered.
 riccio.buildLayout();
 ```
 
+### destroyLayout()
+
+Remove the Riccio layout. On Riccio initialization a clone of `Riccio.element`
+is saved. This function replace the original `Riccio.elment` with the one
+modified by `buildLayout()`.
+
+```js
+// Remove the layout.
+riccio.destroyLayout();
+```
+
 ### ~~needs()~~
 
 **DEPRECATED** - Will be removed in v2.0.0, `buildLayout()` function take cares

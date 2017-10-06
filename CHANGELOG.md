@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+Log of unreleased changes.
+
+### Added
+
+- Added `destroyLayout()` method. Now users can remove Riccio layout.
+- Added `destroyLayout()` documentation in `README.md`.
+
+### Changed
+
+- Riccio `clickHandler()` listener has been moved to `document.body`.
+- `clickHandler()` logic has been changed to met the new listener location.
+
 ## v1.1.0
 
 Released on **2017/10/05**.
