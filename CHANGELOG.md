@@ -15,6 +15,12 @@ Log of unreleased changes.
 
 - Riccio `clickHandler()` listener has been moved to `document.body`.
 - `clickHandler()` logic has been changed to met the new listener location.
+- Refactored `removeRows()`, `addRows()`, `setItems()` and `setRows()`.
+- Improved in-code documentation.
+
+### Removed
+
+- Removed `.eslintrc.json` file.
 
 ## v1.1.0
 
