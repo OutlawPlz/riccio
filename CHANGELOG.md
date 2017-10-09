@@ -2,14 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## v1.2.0
 
-Log of unreleased changes.
+Released on **2017/10/09**.
 
 ### Added
 
 - Added `destroyLayout()` method. Now users can remove Riccio layout.
 - Added `destroyLayout()` documentation in `README.md`.
+- Added `data-riccio-pop` attribute.
 
 ### Changed
 
@@ -17,6 +18,7 @@ Log of unreleased changes.
 - `clickHandler()` logic has been changed to met the new listener location.
 - Refactored `removeRows()`, `addRows()`, `setItems()` and `setRows()`.
 - Improved in-code documentation.
+- `data-riccio-index` has been replaced by `data-riccio-item`.
 
 ### Removed
 

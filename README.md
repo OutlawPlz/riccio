@@ -138,8 +138,8 @@ riccio.buildLayout();
 ### destroyLayout()
 
 Remove the Riccio layout. On Riccio initialization a clone of `Riccio.element`
-is saved. This function replace the original `Riccio.elment` with the one
-modified by `buildLayout()`.
+is saved into `Riccio.originalElement`. This function replace the
+`Riccio.element` modified by `buildLayout()` with the original one.
 
 ```js
 // Remove the layout.
