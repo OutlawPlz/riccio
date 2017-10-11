@@ -188,10 +188,14 @@ rigth number of rows to the given fragment.
 riccio.setRows( fragment );
 ```
 
-### toggle( index )
+### toggle( item )
 
-Open or close the element corresponding to the given index.
+Open or close the given item.
+
+- `{Element|String} item` - The item element to toggle.
 
 ```js
-riccio.toggle( index );
+var item = document.querySelector( '.riccio__item' );
+// Toggle an item.
+riccio.toggle( item );
 ```

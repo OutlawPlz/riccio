@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+Log of unreleased changes.
+
+### Added
+
+- Added private function `getParent()`.
+
+### Changed
+
+- Changed `Riccio.prototype.toggle()` argument. Use `Element` instead of
+`String`.
+- Updated `Riccio.prototype.toggle()` documentation.
+- Refactored `toggleRow()` function. Improved in-line documentation.
+
+### Deprecated
+
+- Argument `{String} index` of `toggle()` function is deprecated, use
+`{Element} item` instead.
+
+### Removed
+
+- Removed private function `getIndex()`. I'm using `getParent()`.
+
 ## v1.2.0
 
 Released on **2017/10/09**.

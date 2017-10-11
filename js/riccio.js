@@ -32,13 +32,12 @@
   /**
    * Instantiate a new Riccio object.
    *
+   * @constructor
+   *
    * @param  {Element} element
    *   The node on which Riccio will act.
    * @param  {Object} options
    *   An object containing Riccio options.
-   *
-   * @return {Riccio|undefined}
-   *   A new Riccio object.
    */
   function Riccio ( element, options ) {
 
@@ -59,10 +58,12 @@
       mediaQueries: true
     };
 
+    // Replace default options with user options.
     if ( options && typeof options === 'object' ) {
       this.options = extendDefaults( defaults, options );
     }
 
+    // If perRow is true, calculate perRow from CSS.
     if ( this.options.perRow && typeof this.options.perRow === 'boolean' ) {
       this.options.perRow = getPerRow( this.element );
     }
@@ -70,6 +71,7 @@
     var itemStore = this.element.querySelectorAll( this.options.itemSelector ),
         popStore = this.element.querySelectorAll( this.options.popSelector );
 
+    // Check if itemStore and popStore have the same length.
     if ( itemStore.length !== popStore.length ) {
       if ( console ) {
         console.error( 'Riccio: items number and pops number doesn\'t match.' );
@@ -125,7 +127,7 @@
    * Reset a Riccio instance to a pre-init state. It removes Riccio CSS classes,
    * events and layout.
    */
-  /*
+/*
   Riccio.prototype.destroy = function () {
 
     // If not initialized do not destroy.
@@ -133,8 +135,19 @@
       return;
     }
 
-    // Remove CSS classes.
+    // Remove CSS classes and the layout.
     this.element.classList.remove( 'riccio' );
+    this.destroyLayout();
+
+    // Remove events.
+    if ( riccioStore.length === 1 ) {
+      document.body.removeEventListener( 'click', clickHandler );
+      for ( var mediaQueryText in mediaQueriesStore ) {
+        mediaQueriesStore[ mediaQueryText ].removeListener( mediaQueryHandler );
+      }
+      // Empty the mediaQueriesStore.
+      mediaQueriesStore = {};
+    }
 
     // Remove instance from the store.
     for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
@@ -143,7 +156,7 @@
       }
     }
   };
-  */
+*/
 
   /**
    * Builds the Riccio layout. This function is called when a breakpoint is
@@ -159,16 +172,19 @@
 
     var fragment = document.createDocumentFragment(),
         activePop = this.element.querySelector( '.riccio__pop--active' ),
-        prevRow = this.element.querySelector( '.riccio__row-pop--active' ),
+        previousActiveRow = this.element.querySelector( '.riccio__row-pop--active' ),
         info = needs( this.element, this.options.itemSelector, this.options.perRow );
 
+    // Append rows, items and pops to the fragment.
     fragment = setRows( fragment, this.element, info );
     fragment = setItems( fragment, this.itemStore, this.popStore, this.options.perRow );
 
+    // Append the layout - a.k.a. the fragment - to the element.
     this.element.appendChild( fragment );
 
+    // Was there an active pop? We should keep it open.
     if ( activePop ) {
-      toggleRow( activePop.parentElement, prevRow );
+      toggleRow( activePop.parentElement, previousActiveRow );
     }
   };
 
@@ -209,11 +225,11 @@
    */
   Riccio.prototype.needs = function() {
 
-    var itmsIndex = this.element.querySelectorAll( this.options.itemSelector ).length;
+    var itemsLength = this.element.querySelectorAll( this.options.itemSelector ).length;
 
     return {
       having: this.element.querySelectorAll( '.riccio__row-item' ).length,
-      needed: Math.ceil( itmsIndex / this.options.perRow )
+      needed: Math.ceil( itemsLength / this.options.perRow )
     };
   };
 
@@ -298,18 +314,30 @@
   /**
    * Open or close the element corresponding to the given index.
    *
-   * @param {String} index
-   *   The index of the popStore corresponding to the element to open.
+   * @param {Element|String} item
+   *   The item to toggle or the index of the popStore corresponding to the
+   *   element to open.
+   *
+   * @deprecated Support for index will be remove in v2.0.0, use the item
+   *   element instead.
    */
-  Riccio.prototype.toggle = function( index ) {
+  Riccio.prototype.toggle = function( item ) {
 
-    var prevPop = this.element.querySelector( '.riccio__pop--active' ),
-        prevItem = this.element.querySelector( '.riccio__item--active' ),
-        prevRow = this.element.querySelector( '.riccio__row-pop--active' );
+    // Get the item index. I've to check if it's a node, in v2.0.0 I'll remove
+    // the check.
+    if ( item.nodeType === Node.ELEMENT_NODE ) {
+      var index = item.getAttribute( 'data-riccio-item' );
+    }
 
-    toggleItem( this.itemStore[ index ], prevItem );
-    togglePop( this.popStore[ index ], prevPop );
-    toggleRow( this.popStore[ index ].parentElement, prevRow );
+    var previousPop = this.element.querySelector( '.riccio__pop--active' ),
+        previousItem = this.element.querySelector( '.riccio__item--active' ),
+        previousRow = this.element.querySelector( '.riccio__row-pop--active' );
+
+    // Toggle item and pop attributes.
+    toggleItem( this.itemStore[ index ], previousItem );
+    togglePop( this.popStore[ index ], previousPop );
+    // A pop row is always the direct parent of a given pop element.
+    toggleRow( this.popStore[ index ].parentElement, previousRow );
   };
 
 
@@ -361,6 +389,7 @@
    */
   Riccio.prototype.getInstance = function ( element ) {
 
+    // Loop over instances in riccioStore and return the one matching the given element.
     for ( var i = riccioStore.length, riccio; i--, riccio = riccioStore[ i ]; ) {
       if ( riccio.element === element ) {
         return riccio;
@@ -376,7 +405,7 @@
    * Returns the number of row you have and the number of row you need to wrap
    * the items.
    *
-   * Ad other functions it counts an item row and the relative pop row as a
+   * As other functions it counts an item row and the relative pop row as a
    * single element. If you need two rows, it means you need two items rows and
    * two pop rows.
    *
@@ -388,8 +417,8 @@
    *   The number of items to fin in a row.
    *
    * @return {{having: number, needed: number}}
-   *   An object containing the number of rows you have and the number row you
-   *   need, keyed by "having" and "needed".
+   *   An object containing the number of rows you have and the number of row
+   *   you need, keyed by "having" and "needed".
    */
   function needs( element, itemSelector, perRow ) {
 
@@ -481,7 +510,7 @@
       itemRows[ rowIndex ].appendChild( item );
       popRows[ rowIndex ].appendChild( pop );
 
-      index++;
+      index++; // Next item.
 
       // If the row is full, go to the next row.
       if ( !( index % perRow) ) {
@@ -602,20 +631,23 @@
    *
    * @param  {Element} item
    *   The item element to which add or remove class.
-   * @param  {Element} prev
+   * @param  {Element} previous
    *   The previous pop or item element to which remove active class.
    */
-  function toggleItem( item, prev ) {
+  function toggleItem( item, previous ) {
 
+    // If item is active, remove active class and return.
     if ( item.classList.contains( 'riccio__item--active' ) ) {
       item.classList.remove( 'riccio__item--active' );
+      return;
     }
-    else {
-      if ( prev ) {
-        prev.classList.remove( 'riccio__item--active' );
-      }
-      item.classList.add( 'riccio__item--active' );
+
+    // If there's a previous item active, deactivate it...
+    if ( previous ) {
+      previous.classList.remove( 'riccio__item--active' );
     }
+    // And active the current one.
+    item.classList.add( 'riccio__item--active' );
   }
 
   /**
@@ -624,20 +656,23 @@
    *
    * @param  {Element} pop
    *   The pop element to which add or remove class.
-   * @param  {Element} prev
+   * @param  {Element} previous
    *   The previous pop element to which remove active class.
    */
-  function togglePop( pop, prev ) {
+  function togglePop( pop, previous ) {
 
+    // If pop is open, close it and return.
     if ( pop.classList.contains( 'riccio__pop--active' ) ) {
       pop.classList.remove( 'riccio__pop--active' );
+      return;
     }
-    else {
-      if ( prev ) {
-        prev.classList.remove( 'riccio__pop--active' );
-      }
-      pop.classList.add( 'riccio__pop--active' );
+
+    // If previous pop exists, deactivate it...
+    if ( previous ) {
+      previous.classList.remove( 'riccio__pop--active' );
     }
+    // And active the current one.
+    pop.classList.add( 'riccio__pop--active' );
   }
 
   /**
@@ -646,51 +681,64 @@
    *
    * @param  {Element} row
    *   The row to check if should be active or not.
-   * @param  {Element} prev
-   *   The previous element to which remove active class.
+   * @param  {Element} previous
+   *   The previous row to which remove active class.
    */
-  function toggleRow( row, prev ) {
+  function toggleRow( row, previous ) {
 
-    var active = row.querySelector( '.riccio__pop--active' );
+    // Get the active pop inside the row.
+    var activePop = row.querySelector( '.riccio__pop--active' );
 
-    if ( active ) {
-      if ( prev && row !== prev ) {
-        prev.classList.remove( 'riccio__row-pop--active' );
-        row.classList.add( 'riccio__row-pop--active' );
-      }
-      else {
-        row.classList.add( 'riccio__row-pop--active' );
-      }
-    }
-    else {
+    // If there's no active pop in the current row, I should close it, that's all.
+    if ( !activePop ) {
       row.classList.remove( 'riccio__row-pop--active' );
+      return;
     }
+
+    // If exists previous row and is different from the current one, I should
+    // close the previous one...
+    if ( previous && row !== previous ) {
+      previous.classList.remove( 'riccio__row-pop--active' );
+    }
+    // And open the current one.
+    row.classList.add( 'riccio__row-pop--active' );
   }
 
   /**
-   * Loops over the given element's parents looking for data-riccio-item
-   * attribute. When meet the ending node it stops.
+   * Returns the element that matches the given CSS selector in the given range
+   * of elements.
    *
-   * @param  {Element} start
-   *   The starting element.
-   * @param  {Element} end
-   *   The ending element.
-   *
-   * @return {String|Boolean}
-   *   The data-riccio-item value found. If not found return false.
+   * @param  {Node} start
+   *         The starting element.
+   * @param  {Node} end
+   *         The ending element.
+   * @param  {String} parentSelector
+   *         A valid CSS selector.
+   * @param  {Boolean} includeSelf
+   *         A boolean indicating if include start element or not.
+   * @return {Node}
+   *         The parent element that matches the given CSS selector.
    */
-  function getIndex( start, end ) {
+  function getParent ( start, end, parentSelector, includeSelf ) {
 
-    var index = false;
-
-    while ( start !== end ) {
-      if ( start.hasAttribute( 'data-riccio-item' ) ) {
-        return start.getAttribute( 'data-riccio-item' );
-      }
-      start = start.parentNode;
+    // If not include the start element, set it to its parent.
+    if ( !includeSelf ) {
+      start = start.parentNode
     }
 
-    return index;
+    // Element.prototype.matches polyfill.
+    if ( !Element.prototype.matches ) {
+      Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector; // IE9+ & Webkit.
+    }
+
+    // Loop over start's parents until met element that matches the parentSelector.
+    while ( start !== end ) {
+      if ( start.matches( parentSelector ) ) {
+        return start
+      }
+
+      start = start.parentNode
+    }
   }
 
   /**
@@ -756,20 +804,20 @@
    * Check the sign of the given number, and return -1 if negative, 1 if
    * positive and 0 if zero.
    *
-   * @param  {Number} num
+   * @param  {Number} number
    *   The number to check.
    *
    * @return {Number}
    *   A number indicating the sign of the given number. -1 if negative, 1 if
    *   positive and 0 if zero.
    */
-  function sign( num ) {
+  function sign( number ) {
 
-    return num ? num < 0 ? -1 : 1 : 0;
+    return number ? number < 0 ? -1 : 1 : 0;
   }
 
 
-  // Events
+  // Event handler
   // ---------------------------------------------------------------------------
 
   /**
@@ -789,10 +837,11 @@
       }
 
       // Get the item I've clicked on.
-      var index = getIndex( event.target, riccio.element );
+      // var index = getIndex( event.target, riccio.element );
+      var item = getParent( event.target, riccio.element, '.riccio__item', true )
       // Check if I've clicked in a item and toggle it.
-      if ( index ) {
-        riccio.toggle( index );
+      if ( item ) {
+        riccio.toggle( item );
       }
     }
   }
